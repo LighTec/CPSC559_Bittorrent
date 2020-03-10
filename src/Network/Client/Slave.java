@@ -1,16 +1,10 @@
-package client;
+package Network.Client;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.concurrent.BlockingQueue;
+import java.nio.ByteBuffer;
 
 public class Slave extends Thread {
 	
@@ -39,12 +33,26 @@ public class Slave extends Thread {
 		String s1 = "GET " + filename + " " + "Range:" + bytestart + "-" + bytefinish; // format example: "GET test.txt Range:5-10"
 		String message = s1;
 		buf = message.getBytes(); //write string to byte buffer
-		dp = new DatagramPacket(buf,buf.length,addr,port); //init packet and bind addr,port
-		
+		byte[] out = new byte[buf.length + 8];
+		for(int i = 0; i < buf.length; i++){
+			out[8+i] = buf[i];
+		}
+		int commandnumber = 3;
+		byte[] cmd = ByteBuffer.allocate(4).putInt(commandnumber).array();
+		byte[] length = ByteBuffer.allocate(4).putInt(buf.length).array();
+		for(int i = 0; i < 4; i++){
+			out[i] = cmd[i];
+			out[4+i] = length[i];
+		}
+
+
+		dp = new DatagramPacket(out, out.length, addr, port); //init packet and bind addr,port
+
 		try {
 			udpSocket.send(dp); //sent message/packet
-			System.out.println("request sent...");
-		} catch (IOException e) {}
+			System.out.println("request sent..." + s1.length());
+		} catch (IOException e) {
+		}
 		Receiver receiveThread = new Receiver(this,udpSocket); //init receive thread passes in "this" slave object, and udp socket
 		receiveThread.start(); //start receiver thread
 		//*******wait, then shutdown cause exception so removed*********//

@@ -1,4 +1,4 @@
-package client;
+package Network.Client;
 
 import java.util.ArrayList;
 import java.io.IOException;
@@ -7,9 +7,9 @@ import java.net.UnknownHostException;
 
 public class Master extends Thread {
 	
-	private ArrayList<String> peerdata;
+	private ArrayList<String[]> peerdata;
 	
-	public Master(final ArrayList<String> peerdata)
+	public Master(final ArrayList<String[]> peerdata)
 	{
 		this.peerdata = peerdata; // arraylist for storing ip/port for each peer form = "127.0.0.1:8778"
 	}
@@ -22,10 +22,9 @@ public class Master extends Thread {
 		
 		for(int i=0;i<this.peerdata.size();i++) //cycle threw peer list assign to slave thread
 		{
-			String addip = this.peerdata.get(i);
-			ParseData parse = new ParseData(addip); //parse request string
-			String addr = parse.getIP();
-			int port = parse.getPort();
+			String[] connection = this.peerdata.get(i);
+			String addr = connection[0];
+			int port = Integer.parseInt(connection[1]);
 			try {
 				InetAddress ip = InetAddress.getByName(addr);
 				final Slave slaveThread = new Slave(ip,port,start,end,"test.txt"); //create slave thread with specified byte range and file

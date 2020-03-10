@@ -1,4 +1,4 @@
-package client;
+package Network.Client;
 
 public class ParseData {
 	

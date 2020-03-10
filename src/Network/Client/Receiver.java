@@ -1,4 +1,4 @@
-package client;
+package Network.Client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
