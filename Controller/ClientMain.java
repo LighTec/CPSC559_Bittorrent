@@ -11,7 +11,7 @@ public class ClientMain {
     {
         InetAddress inetAddress = InetAddress.getLocalHost();
         String url = inetAddress.getHostAddress();
-        String port = "6006";gfhsd
+        String port = "6006";
         //String port2 = "6007";
         ArrayList<String[]> data = new ArrayList<>();
         String[] connection = {url, port};
