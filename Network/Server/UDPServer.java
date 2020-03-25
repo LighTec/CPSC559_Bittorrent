@@ -1,7 +1,7 @@
 package Network.Server;
 
 import Network.CommandHandler;
-import com.sun.media.jfxmedia.logging.Logger;
+
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -34,11 +34,13 @@ public class UDPServer extends Thread{
     }
 
     public void run(){
+        System.out.println("Server Running");
         this.running = true;
         while(this.running){
             this.packet = new DatagramPacket(this.buf, this.buf.length);
             try {
                 this.socket.receive(this.packet); // wait until we get some data
+                System.out.println("GOT IT");
                 this.buf = this.packet.getData(); // put data into byte buffer
                 byte[][] parsed = this.handler.tokenizepacket(this.buf); // tokenize data
                 int cmd = ByteBuffer.wrap(parsed[0]).getInt(); // get command number

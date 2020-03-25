@@ -19,6 +19,8 @@ public class ClientMain {
         data.add(connection); // add peer info "127.0.0.1:8778" to peer list current only 1 being added
         //data.add(connection2); // uncomment to add more peers
         UDPClient client = new UDPClient(data); //init and start stuff above
+        System.out.println("Client created");
         client.start();
+
     }
 }
