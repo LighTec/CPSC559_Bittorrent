@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 public class Tracker {
 
-    private ArrayList<String[]> peerList;
+    private ArrayList<String> peerList;
     private int fileSize;
     private byte[] hash;
     private String fileName;
-    private String[] leader;
+    private String leader;
 
-    public Tracker (ArrayList<String[]> peerList, int fileSize, byte[] hash, String fileName, String[] leader) {
+    public Tracker (ArrayList<String> peerList, int fileSize, byte[] hash, String fileName, String leader) {
         this.peerList = peerList;
         this.fileSize = fileSize;
         this.hash = hash;
@@ -18,27 +18,38 @@ public class Tracker {
         this.leader = leader;
     }
 
-    // A method to add a new peer to current peerList
-    // @param newPeer contains ["ip address", "port"]
-    public void addPeerData(String[] newPeer) {
+    /** A method to add a new peer to current peerList
+     * @param newPeer ip address
+     */
+    public void addPeerData(String newPeer) {
         this.peerList.add(newPeer);
     }
 
-    public void deletePeerData(String[] deletePeer) {
+    /**
+     * A method to delete a peer from current peerList
+      * @param deletePeer ip address
+     */
+    public void deletePeerData(String deletePeer) {
         this.peerList.remove(deletePeer);
     }
 
-    public void updateLeader (String[] newLeader) {
+    /**
+     * A method to update leader's ip address
+     * @param newLeader ip address
+     */
+    public void updateLeader (String newLeader) {
         this.leader = newLeader;
     }
 
-    public ArrayList<String[]> getPeerList () {
+    public ArrayList<String> getPeerList () {
         return this.peerList;
     }
 
-    // A method to get the current leader for the file
-    // @return the leader info which contains ["ip address", "port"]
-    public String[] getLeader () {
+    /**
+     * A method to get the current leader's ip address
+     * @return ip address
+     */
+    public String getLeader () {
         return this.leader;
     }
 
