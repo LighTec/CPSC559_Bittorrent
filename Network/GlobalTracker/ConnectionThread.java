@@ -31,7 +31,7 @@ public class ConnectionThread extends Thread {
                 String msg = in.readLine();
                 if (msg.equals("connect")) {
                     StringBuilder s = new StringBuilder();
-                    String[] nodes = this.gt.getConnectedNodes();
+                    String[] nodes = this.gt.getRandomNodes(3);
                     for (int i = 0; i < nodes.length; i++) {
                         s.append(nodes[i]);
                         if (i != nodes.length - 1) {
