@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class ConnectionThread extends Thread {
 
@@ -31,7 +30,16 @@ public class ConnectionThread extends Thread {
 
                 String msg = in.readLine();
                 if (msg.equals("connect")) {
-                    out.println(Arrays.toString(this.gt.getConnectedNodes()));
+                    StringBuilder s = new StringBuilder();
+                    String[] nodes = this.gt.getConnectedNodes();
+                    for (int i = 0; i < nodes.length; i++) {
+                        s.append(nodes[i]);
+                        if (i != nodes.length - 1) {
+                            s.append(",");
+                        }
+                    }
+                    out.println(s.toString());
+
                     String address = client.getInetAddress().getCanonicalHostName();
                     this.gt.addNode(address);
                     System.out.println(">> Added " + address);
