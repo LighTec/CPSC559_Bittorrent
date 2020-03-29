@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ClientMain {
+
+    public static String[] nodes;
 
     public static void main(String[] args) {
         /*
@@ -30,7 +33,13 @@ public class ClientMain {
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
             out.println("connect");
-            System.out.println("<< Nodes: " + in.readLine());
+            StringBuilder nodesString = new StringBuilder();
+            String temp;
+            while ((temp = in.readLine()) != null) {
+                nodesString.append(temp);
+            }
+            nodes = nodesString.toString().split(",");
+            System.out.println(Arrays.toString(nodes));
 
             MessageThread mt = new MessageThread();
             mt.start();
