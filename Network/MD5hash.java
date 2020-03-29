@@ -1,8 +1,8 @@
 package Network;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,9 +19,9 @@ public class MD5hash {
 
     /// was trying some stuff with paths but just left it so uses files in current directory
     /// maybe we can ask user for the path were they will store there files then use paths
-    public byte[] getHashFile(String filename) throws NoSuchAlgorithmException, IOException, URISyntaxException {
-        URL url = getClass().getResource(filename);
-        Path p = Paths.get(url.toURI());
+    public byte[] getHashFile(String filename) throws NoSuchAlgorithmException, IOException {
+        //URL url = getClass().getResource(filename);
+        Path p = Paths.get(filename);
         byte[] b = Files.readAllBytes(p);
         return hashBytes(b);
     }
