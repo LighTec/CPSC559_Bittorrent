@@ -1,16 +1,12 @@
 package Network.Server;
 
 import Network.MD5hash;
+import Network.NetworkStatics;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -27,13 +23,13 @@ public class FileManager {
     }
 
     /**
-     * Given a file hash, returns the file if available in the local list.
-     * @param hash
-     * @return file with requested hash
+     * Given a file name, returns the file if available in the local list.
+     * @param name filename (no not include directory!)
+     * @return file with requested name
      * @throws NoSuchFileException if no such file exist in the local list, or if the file cannot be found on disk or cannot be accesses
      */
-    public RandomAccessFile getFile(byte[] hash) throws NoSuchFileException {
-        String toget = this.hasher.hashBytesToString(hash);
+    public RandomAccessFile getFile(byte[] name) throws NoSuchFileException {
+        String toget = this.hasher.hashBytesToString(name);
         if(this.mapper.containsKey(toget)){
             String fp = this.mapper.get(toget);
             RandomAccessFile f = null;
@@ -70,10 +66,10 @@ public class FileManager {
 
     /**
      * Given a hash of a file, remove it from the local list of available files
-     * @param hash
+     * @param name
      */
-    public void removeFile(byte[] hash){
-        String torem = hasher.hashBytesToString(hash);
+    public void removeFile(byte[] name){
+        String torem = hasher.hashBytesToString(name);
         if(this.mapper.containsKey(torem)){
             this.mapper.remove(torem);
         }else{
@@ -84,25 +80,14 @@ public class FileManager {
     /**
      * Add a new file to the local list of available files
      * @param filePath
-     * @return True if added to list of available files, false otherwise
+     * @return name of file if successful, false otherwise
      */
-    public byte[] addFile(String filePath){
+    public String addFile(String filePath){
        File newfile = new File(filePath);
        if(newfile.exists()){
-           try {
-               MessageDigest hasher = MessageDigest.getInstance("md5");
-               hasher.update(Files.readAllBytes(Paths.get(filePath)));
-               byte[] digest = hasher.digest();
-               String digestStr = this.hasher.hashBytesToString(digest);
-               this.mapper.put(digestStr, filePath);
-               return digest;
-           } catch (NoSuchAlgorithmException e) {
-               System.err.println("failed to initialize md5 hasher.");
-               e.printStackTrace();
-           } catch (IOException e) {
-               System.err.println("failed to add file: IOException when reading file to get hash");
-           }
-           return null;
+           String name = NetworkStatics.getFilenameFromFilepath(filePath);
+           this.mapper.put(name, filePath);
+           return name;
        }else{
            System.err.println("request to add nonexistent file at " + filePath);
        }
@@ -110,10 +95,10 @@ public class FileManager {
     }
 
     /**
-     * Returns the hashes of files available locally.
+     * Returns the names of files available locally.
      * @return
      */
-    public String[] getFileHashList(){
+    public String[] getFileNameList(){
         Set<String> keyset = this.mapper.keySet();
         Iterator<String> iter = keyset.iterator();
         String[] output = new String[this.mapper.size()];
@@ -128,7 +113,7 @@ public class FileManager {
      * @return
      */
     public String[] getFilePathList(){
-        String[] keys = this.getFileHashList();
+        String[] keys = this.getFileNameList();
         String[] paths = new String[keys.length];
         for(int i = 0; i < keys.length; i++){
             paths[i] = this.mapper.get(keys[i]);

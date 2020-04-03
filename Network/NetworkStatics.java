@@ -4,6 +4,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NetworkStatics {
     public final static int HEARTBEAT_PORT = 6050;
@@ -81,5 +83,12 @@ public class NetworkStatics {
         System.out.println(sb2);
         System.out.println(sb3);
         System.out.println("=================================================");
+    }
+
+    public static String getFilenameFromFilepath(String fp){
+        Pattern pat = Pattern.compile("[^/\\\\]*$");
+        Matcher mat = pat.matcher(fp);
+        mat.find();
+        return mat.group(0);
     }
 }
