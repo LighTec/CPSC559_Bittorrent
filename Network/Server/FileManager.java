@@ -1,6 +1,7 @@
 package Network.Server;
 
-import javax.xml.bind.DatatypeConverter;
+import Network.MD5hash;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,8 +19,11 @@ public class FileManager {
 
     private HashMap<String,String> mapper;
 
+    private MD5hash hasher;
+
     public FileManager(){
         this.mapper = new HashMap<>();
+        this.hasher = new MD5hash();
     }
 
     /**
@@ -29,7 +33,7 @@ public class FileManager {
      * @throws NoSuchFileException if no such file exist in the local list, or if the file cannot be found on disk or cannot be accesses
      */
     public RandomAccessFile getFile(byte[] hash) throws NoSuchFileException {
-        String toget = DatatypeConverter.printHexBinary(hash).toUpperCase();
+        String toget = this.hasher.hashBytesToString(hash);
         if(this.mapper.containsKey(toget)){
             String fp = this.mapper.get(toget);
             RandomAccessFile f = null;
@@ -69,7 +73,7 @@ public class FileManager {
      * @param hash
      */
     public void removeFile(byte[] hash){
-        String torem = DatatypeConverter.printHexBinary(hash).toUpperCase();
+        String torem = hasher.hashBytesToString(hash);
         if(this.mapper.containsKey(torem)){
             this.mapper.remove(torem);
         }else{
@@ -89,7 +93,7 @@ public class FileManager {
                MessageDigest hasher = MessageDigest.getInstance("md5");
                hasher.update(Files.readAllBytes(Paths.get(filePath)));
                byte[] digest = hasher.digest();
-               String digestStr = DatatypeConverter.printHexBinary(digest).toUpperCase();
+               String digestStr = this.hasher.hashBytesToString(digest);
                this.mapper.put(digestStr, filePath);
                return digest;
            } catch (NoSuchAlgorithmException e) {

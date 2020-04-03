@@ -34,10 +34,14 @@ public class MD5hash {
 
     public void printHash(byte[] hash)
     {
+        System.out.println(this.hashBytesToString(hash));
+    }
+
+    public String hashBytesToString(byte[] hash){
         BigInteger num = new BigInteger(1,hash);
         String hashout = num.toString(16);
         while (hashout.length()<32)
             hashout += "0";
-        System.out.println(hashout);
+        return hashout;
     }
 }
