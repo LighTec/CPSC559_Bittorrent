@@ -108,7 +108,7 @@ public class UDPServer extends Thread{
                             throw new ArrayIndexOutOfBoundsException();
                         }
 
-                        this.sendpacket = new DatagramPacket(tosend, tosend.length, requesterip, NetworkStatics.FILE_SEND_LOWERBOUND);
+                        this.sendpacket = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
 
                         NetworkStatics.printPacket(this.sendpacket.getData(), "FILE SEND PACKET");
 
