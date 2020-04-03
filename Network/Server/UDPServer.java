@@ -97,22 +97,23 @@ public class UDPServer extends Thread{
                             System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
                                     "Expected: " + length + "   Actual:" + bytesread + ".");
                         }
-                        byte[] output = new byte[datatosend.length + 12];
-                        System.arraycopy(NetworkStatics.intToByteArray(0), 0, output, 0, 4);
-                        System.arraycopy(NetworkStatics.intToByteArray(startindex), 0, output, 4, 4);
-                        System.arraycopy(NetworkStatics.intToByteArray(endindex),0, output, 8, 4);
-                        System.arraycopy(datatosend, 0, output, 12, datatosend.length);
-                        byte[] tosend = this.handler.generatePacket(11, output);
-                        if(tosend.length > 64000){
-                            System.err.println("Large file transfer not allowed.");
-                            throw new ArrayIndexOutOfBoundsException();
+
+                        // split the datatosend array so it can fit into 64k udp packets
+                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend,NetworkStatics.MAX_PACKET_SIZE-16);
+                        DatagramPacket[] sendarray = new DatagramPacket[splitdata.length];
+
+                        for (int i = 0; i < splitdata.length; i++) {
+                            byte[] output = new byte[splitdata[i].length + 16];
+                            System.arraycopy(NetworkStatics.intToByteArray(0), 0, output, 0, 4);
+                            System.arraycopy(NetworkStatics.intToByteArray(startindex), 0, output, 4, 4);
+                            System.arraycopy(NetworkStatics.intToByteArray(endindex),0, output, 8, 4);
+                            System.arraycopy(NetworkStatics.intToByteArray(i),0, output, 12, 4);
+                            System.arraycopy(splitdata[i], 0, output, 16, splitdata[i].length);
+                            byte[] tosend = this.handler.generatePacket(11, output);
+
+                            sendarray[i] = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
+                            this.sendsocket.send(sendarray[i]);
                         }
-
-                        this.sendpacket = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
-
-                        NetworkStatics.printPacket(this.sendpacket.getData(), "FILE SEND PACKET");
-
-                        this.sendsocket.send(this.sendpacket);
                         break;
                     case 11:
                         System.err.println("File chunk sent to server. Discarding...");
