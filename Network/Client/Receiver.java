@@ -8,7 +8,7 @@ import java.net.SocketException;
 
 public class Receiver extends Thread {
 	
-	public static final int MAX_PAYLOAD_SIZE = 65535;
+	public static final int MAX_PAYLOAD_SIZE = 65507;
 	private DatagramSocket socket;
 	private volatile boolean shutdown;
 	private Slave slave;
@@ -26,11 +26,13 @@ public class Receiver extends Thread {
 		while(!this.shutdown) //shuts down when shutdown called from slave
 		{
 			byte[] bytes = new byte[MAX_PAYLOAD_SIZE]; //??? size
-			DatagramPacket pkg = new DatagramPacket(bytes,bytes.length);
+			DatagramPacket packet = new DatagramPacket(bytes,bytes.length);
 			try {
-				socket.receive(pkg); //receive packet and write to byte buffer
-			} catch (IOException e) {}
-			slave.processPacket(bytes); // pass byte buffer into processPacket in slave class for file rebuild ops
+				socket.receive(packet); //receive packet and write to byte buffer
+				byte[] nout = new byte[packet.getLength()];
+				System.arraycopy(bytes, 0, nout, 0, nout.length);
+				slave.processPacket(nout);
+			} catch (IOException | InterruptedException e) {}
 		}
 	}
 	
