@@ -1,14 +1,15 @@
 package Network.Client;
-
+import Network.NetworkStatics;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.security.NoSuchAlgorithmException;
 
 
 public class Receiver extends Thread {
-	
-	public static final int MAX_PAYLOAD_SIZE = 65535;
+
 	private DatagramSocket socket;
 	private volatile boolean shutdown;
 	private Slave slave;
@@ -23,14 +24,25 @@ public class Receiver extends Thread {
 	
 	public void run()
 	{
+		try {
+			socket.setSoTimeout(1000);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 		while(!this.shutdown) //shuts down when shutdown called from slave
 		{
-			byte[] bytes = new byte[MAX_PAYLOAD_SIZE]; //??? size
-			DatagramPacket pkg = new DatagramPacket(bytes,bytes.length);
+			byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE]; //??? size
+			DatagramPacket packet = new DatagramPacket(bytes,bytes.length);
 			try {
-				socket.receive(pkg); //receive packet and write to byte buffer
-			} catch (IOException e) {}
-			slave.processPacket(bytes); // pass byte buffer into processPacket in slave class for file rebuild ops
+				socket.receive(packet);
+				byte[] nout = new byte[packet.getLength()];
+				System.arraycopy(bytes, 0, nout, 0, nout.length);
+				slave.processPacket(nout);
+			} catch (SocketTimeoutException e) {
+				break;
+			} catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
