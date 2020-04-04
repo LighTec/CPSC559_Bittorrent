@@ -29,7 +29,7 @@ public class FileManager {
      * @throws NoSuchFileException if no such file exist in the local list, or if the file cannot be found on disk or cannot be accesses
      */
     public RandomAccessFile getFile(byte[] name) throws NoSuchFileException {
-        String toget = this.hasher.hashBytesToString(name);
+        String toget = new String(name);
         if(this.mapper.containsKey(toget)){
             String fp = this.mapper.get(toget);
             RandomAccessFile f = null;
