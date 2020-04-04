@@ -51,7 +51,7 @@ public class CommandHandler {
             throw new UnsupportedOperationException("Command not available.");
         } else if(lencmd == -1){ // if variable length, read next 4 bytes as length integer
             lencmd = NetworkStatics.byteArrayToInt(data,4);
-            parsed[1] = Arrays.copyOfRange(data,8, lencmd + 8);
+            parsed[1] = Arrays.copyOfRange(data,8, lencmd + 16);
         }else{ // otherwise use static length
             parsed[1] = Arrays.copyOfRange(data,4, lencmd + 4);
         }
