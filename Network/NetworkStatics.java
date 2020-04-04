@@ -12,10 +12,8 @@ public class NetworkStatics {
     public final static int SERVER_CONTROL_RECEIVE = 6051;
     public final static int SERVER_CONTROL_SEND = 6052;
 
-    // TODO implement port agreement handshake, until then use server control send port
-    public final static int FILE_SEND_LOWERBOUND = SERVER_CONTROL_SEND;
-
     public final static int MAX_PACKET_SIZE = 65507;
+    public final static int MAX_USEABLE_PACKET_SIZE = 65499;
 
     /**
      * Formats an integer into a byte array of length 4. Returned array is little endian.
