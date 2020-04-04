@@ -1,6 +1,7 @@
 package Network;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CommandHandler {
@@ -16,7 +17,7 @@ public class CommandHandler {
      * @param cmd
      * @return
      */
-    public int Getcmdlen(int cmd){
+    public int getCmdLen(int cmd){
         return this.cmdlen[cmd];
     }
 
@@ -26,8 +27,13 @@ public class CommandHandler {
         Arrays.fill(this.cmdlen, -2);
         this.cmdlen[0] = 0;
         this.cmdlen[1] = 0;
-        this.cmdlen[2] = 20;
         this.cmdlen[3] = -1;
+        this.cmdlen[4] = 4;
+        this.cmdlen[5] = 20;
+        this.cmdlen[6] = -1;
+        this.cmdlen[10] = 24;
+        this.cmdlen[11] = -1;
+        this.cmdlen[12] = 4;
     }
 
     /**
@@ -39,12 +45,12 @@ public class CommandHandler {
     public byte[][] tokenizepacket(byte[] data){
         byte[][] parsed = new byte[2][]; // create 2d array containing command number then data
         parsed[0] = Arrays.copyOfRange(data,0,4); // get command from data
-        int cmd = ByteBuffer.wrap(parsed[0]).getInt(); // get command integer from array of 4 bytes
-        int lencmd = this.Getcmdlen(cmd); // check command length
+        int cmd = NetworkStatics.byteArrayToInt(data);
+        int lencmd = this.getCmdLen(cmd); // check command length
         if(lencmd == -2) { // if invalid, throw exception
             throw new UnsupportedOperationException("Command not available.");
         } else if(lencmd == -1){ // if variable length, read next 4 bytes as length integer
-            lencmd = ByteBuffer.wrap(Arrays.copyOfRange(data,4,8)).getInt();
+            lencmd = NetworkStatics.byteArrayToInt(data,4);
             parsed[1] = Arrays.copyOfRange(data,8, lencmd + 8);
         }else{ // otherwise use static length
             parsed[1] = Arrays.copyOfRange(data,4, lencmd + 4);
@@ -52,4 +58,29 @@ public class CommandHandler {
         return parsed;
     }
 
+    public byte[] generatePacket(int cmd, byte[] data){
+        int len = this.getCmdLen(cmd);
+        byte[] cmdbytes = NetworkStatics.intToByteArray(cmd);
+        byte[] output;
+        if(len == -2){
+            throw new UnsupportedOperationException("Command not available.");
+        }else if(len == -1){
+            len = data.length; // get variable data length (data length + cmd bytes + len bytes)
+            output = new byte[data.length + 8]; // create array of appropriate size
+            System.arraycopy(cmdbytes,0,output,0,4); // copy cmd bytes to output
+            byte[] lenbytes = NetworkStatics.intToByteArray(len); // get byte array of length integer
+            System.arraycopy(lenbytes,0,output,4,4); // copy length bytes to output
+            System.arraycopy(data,0,output,8, len); // copy data to output
+
+        }else{
+            if(data.length != len){
+                throw new IllegalArgumentException("data length does not match cmd length requirement!");
+            }else{
+                output = new byte[data.length + 4]; // get variable data length (data length + cmd bytes)
+                System.arraycopy(cmdbytes,0,output,0,4); // copy cmd bytes to output
+                System.arraycopy(data,0,output,4, len); // copy data to output
+            }
+        }
+        return output;
+    }
 }
