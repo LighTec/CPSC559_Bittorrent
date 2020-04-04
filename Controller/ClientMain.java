@@ -1,14 +1,13 @@
 package Controller;
 
-import Network.Client.UDPClient;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import Network.NodeList;
 
 public class ClientMain {
-    public static void main(String[] args) throws UnknownHostException  //client driver
-    {
+
+    static String[] nodes;
+
+    public static void main(String[] args) {
+        /*
         InetAddress inetAddress = InetAddress.getLocalHost();
         String url = inetAddress.getHostAddress();
         String port = "6006";
@@ -20,5 +19,12 @@ public class ClientMain {
         //data.add(connection2); // uncomment to add more peers
         UDPClient client = new UDPClient(data); //init and start stuff above
         client.start();
+        */
+
+        NodeList nl = new NodeList();
+        nodes = nl.getNodes();
+
+        MessageThread mt = new MessageThread();
+        mt.start();
     }
 }
