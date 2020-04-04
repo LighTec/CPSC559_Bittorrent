@@ -1,6 +1,7 @@
 package Network.Server;
 
 import Network.CommandHandler;
+import Network.MD5hash;
 import Network.NetworkStatics;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class UDPServer extends Thread{
@@ -21,12 +23,15 @@ public class UDPServer extends Thread{
     private DatagramPacket sendpacket;
     private byte[] buf;
 
+    private MD5hash hasher;
+
     private FileManager fm;
 
     private boolean running = false;
 
     public UDPServer(FileManager man){
         this.port = port;
+        this.hasher = new MD5hash();
         this.handler = new CommandHandler();
         try {
             this.buf = new byte[NetworkStatics.MAX_USEABLE_PACKET_SIZE];
@@ -99,15 +104,15 @@ public class UDPServer extends Thread{
                         }
 
                         // split the datatosend array so it can fit into 64k udp packets
-                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend,NetworkStatics.MAX_USEABLE_PACKET_SIZE -16);
+                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend,NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20);
                         DatagramPacket[] sendarray = new DatagramPacket[splitdata.length];
 
                         for (int i = 0; i < splitdata.length; i++) {
-                            byte[] output = new byte[splitdata[i].length + 12];
-                            System.arraycopy(NetworkStatics.intToByteArray(startindex), 0, output, 0, 4);
-                            System.arraycopy(NetworkStatics.intToByteArray(endindex),0, output, 4, 4);
-                            System.arraycopy(NetworkStatics.intToByteArray(i),0, output, 8, 4);
-                            System.arraycopy(splitdata[i], 0, output, 12, splitdata[i].length);
+                            byte[] output = new byte[splitdata[i].length + 20];
+                            System.arraycopy(NetworkStatics.intToByteArray(i),0, output, 0, 4);
+                            byte[] datahash = this.hasher.hashBytes(splitdata[i]);
+                            System.arraycopy(datahash, 0, output, 4, 16);
+                            System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
                             byte[] tosend = this.handler.generatePacket(11, output);
                             sendarray[i] = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
                             this.sendsocket.send(sendarray[i]);
@@ -151,6 +156,8 @@ public class UDPServer extends Thread{
                 }
             }catch (IOException e) {
                 System.err.println("Failure reading data on port " + this.port + ".");
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
