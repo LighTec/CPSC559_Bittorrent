@@ -103,14 +103,12 @@ public class UDPServer extends Thread{
                         DatagramPacket[] sendarray = new DatagramPacket[splitdata.length];
 
                         for (int i = 0; i < splitdata.length; i++) {
-                            byte[] output = new byte[splitdata[i].length + 16];
-                            System.arraycopy(NetworkStatics.intToByteArray(11), 0, output, 0, 4);
-                            System.arraycopy(NetworkStatics.intToByteArray(startindex), 0, output, 4, 4);
-                            System.arraycopy(NetworkStatics.intToByteArray(endindex),0, output, 8, 4);
-                            System.arraycopy(NetworkStatics.intToByteArray(i),0, output, 12, 4);
-                            System.arraycopy(splitdata[i], 0, output, 16, splitdata[i].length);
+                            byte[] output = new byte[splitdata[i].length + 12];
+                            System.arraycopy(NetworkStatics.intToByteArray(startindex), 0, output, 0, 4);
+                            System.arraycopy(NetworkStatics.intToByteArray(endindex),0, output, 4, 4);
+                            System.arraycopy(NetworkStatics.intToByteArray(i),0, output, 8, 4);
+                            System.arraycopy(splitdata[i], 0, output, 12, splitdata[i].length);
                             byte[] tosend = this.handler.generatePacket(11, output);
-
                             sendarray[i] = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
                             this.sendsocket.send(sendarray[i]);
                         }
