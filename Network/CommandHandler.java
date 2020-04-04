@@ -29,11 +29,11 @@ public class CommandHandler {
         this.cmdlen[1] = 0;
         this.cmdlen[3] = -1;
         this.cmdlen[4] = 4;
-        this.cmdlen[5] = 20;
+        this.cmdlen[5] = 20; // TODO figure out length of this guy
         this.cmdlen[6] = -1;
-        this.cmdlen[10] = 24;
+        this.cmdlen[10] = -1;
         this.cmdlen[11] = -1;
-        this.cmdlen[12] = 4;
+        this.cmdlen[12] = -1;
     }
 
     /**
