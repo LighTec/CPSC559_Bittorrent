@@ -14,14 +14,14 @@ public class ServerMain {
 
         String hash = fman.addFile("./TestFiles/alphabet.txt");
 
-       // NetworkStatics.printPacket(hash, "HASH");
+        // NetworkStatics.printPacket(hash, "HASH");
 
-       // RandomAccessFile raf = fman.getFile(hash);
+        // RandomAccessFile raf = fman.getFile(hash);
 
-       // System.out.println(raf.length());
+        // System.out.println(raf.length());
 
-      //  System.exit(0);
+        //  System.exit(0);
         UDPServer u = new UDPServer(fman);
-        u.run();
+        u.start();
     }
 }
