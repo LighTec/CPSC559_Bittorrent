@@ -5,7 +5,6 @@ import Network.CommandHandler;
 import Network.Leadership;
 import Network.MD5hash;
 import Network.NetworkStatics;
-import com.sun.xml.internal.fastinfoset.util.StringArray;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -18,7 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UDPServer extends Thread{
+public class UDPServer extends Thread {
 
     private CommandHandler handler;
     private int port;
@@ -36,14 +35,14 @@ public class UDPServer extends Thread{
 
     private boolean running = false;
 
-    public UDPServer(FileManager man, Node node){
-        this.port = port;
+    public UDPServer(FileManager man, Node node) {
+        this.port = NetworkStatics.SERVER_CONTROL_RECEIVE;
         this.hasher = new MD5hash();
         this.handler = new CommandHandler();
         this.node = node;
         try {
             this.buf = new byte[NetworkStatics.MAX_USEABLE_PACKET_SIZE];
-            this.recvsocket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE);
+            this.recvsocket = new DatagramSocket(this.port);
             this.sendsocket = new DatagramSocket();
             this.fm = man;
         } catch (SocketException e) {
@@ -52,9 +51,9 @@ public class UDPServer extends Thread{
         }
     }
 
-    public void run(){
+    public void run() {
         this.running = true;
-        while(this.running){
+        while (this.running) {
             this.recvpacket = new DatagramPacket(this.buf, this.buf.length);
             try {
                 this.recvsocket.receive(this.recvpacket); // wait until we get some data
@@ -64,7 +63,7 @@ public class UDPServer extends Thread{
                 System.out.println("Command number: " + cmd);
                 System.out.println("Command length: " + parsed[1].length); // print data length
 
-                switch (cmd){
+                switch (cmd) {
                     case 0:
                         System.out.println("Request for heartbeat");
                         InetAddress requesterIP = this.recvpacket.getAddress();
@@ -105,8 +104,8 @@ public class UDPServer extends Thread{
                         // TODO implement files transfer of 64k and larger files
                         // TODO spin off to separate thread to execute
 
-                        int startindex = NetworkStatics.byteArrayToInt(parsed[1],0);
-                        int endindex = NetworkStatics.byteArrayToInt(parsed[1],4);
+                        int startindex = NetworkStatics.byteArrayToInt(parsed[1], 0);
+                        int endindex = NetworkStatics.byteArrayToInt(parsed[1], 4);
                         byte[] name = Arrays.copyOfRange(parsed[1], 8, parsed[1].length);
                         InetAddress requesterip = this.recvpacket.getAddress();
                         int length = endindex - startindex + 1;
@@ -115,21 +114,21 @@ public class UDPServer extends Thread{
                         byte[] datatosend = new byte[length];
 
                         toget.seek(startindex);
-                        int bytesread = toget.read(datatosend,0, length);
+                        int bytesread = toget.read(datatosend, 0, length);
                         //int bytesread = toget.read(datatosend,startindex, length);
 
-                        if(bytesread != length){
+                        if (bytesread != length) {
                             System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
                                     "Expected: " + length + "   Actual:" + bytesread + ".");
                         }
 
                         // split the datatosend array so it can fit into 64k udp packets
-                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend,NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20);
+                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend, NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20);
                         DatagramPacket[] sendarray = new DatagramPacket[splitdata.length];
 
                         for (int i = 0; i < splitdata.length; i++) {
                             byte[] output = new byte[splitdata[i].length + 20];
-                            System.arraycopy(NetworkStatics.intToByteArray(i),0, output, 0, 4);
+                            System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
                             byte[] datahash = this.hasher.hashBytes(splitdata[i]);
                             System.arraycopy(datahash, 0, output, 4, 16);
                             System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
@@ -164,7 +163,7 @@ public class UDPServer extends Thread{
                         String fIP20 = fileName2 + "," + newSeederIP;
                         byte[] tosend20 = this.handler.generatePacket(25, fIP20.getBytes());
 
-                        for(String p: pList){
+                        for (String p : pList) {
                             DatagramPacket data = new DatagramPacket(tosend20, tosend20.length, InetAddress.getByName(p), NetworkStatics.SERVER_CONTROL_RECEIVE);
                             this.sendsocket.send(data);
                         }
@@ -187,10 +186,10 @@ public class UDPServer extends Thread{
                         ArrayList<String> peerList = node.getPeerListFromTracker(fileName);
 
                         String newLeader = Leadership.election(peerList);
-                        String fIP = fileName+ "," + newLeader;
+                        String fIP = fileName + "," + newLeader;
 
                         byte[] tosend24 = this.handler.generatePacket(23, fIP.getBytes());
-                        for (String peer: peerList) {
+                        for (String peer : peerList) {
                             DatagramPacket data = new DatagramPacket(tosend24, tosend24.length, InetAddress.getByName(peer), NetworkStatics.SERVER_CONTROL_RECEIVE);
                             this.sendsocket.send(data);
                         }
@@ -217,7 +216,7 @@ public class UDPServer extends Thread{
                     default:
                         throw new IllegalStateException("Unexpected value in " + getClass().getName() + " switch statement: " + cmd);
                 }
-            }catch (IOException e) {
+            } catch (IOException e) {
                 System.err.println("Failure reading data on port " + this.port + ".");
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
@@ -226,7 +225,7 @@ public class UDPServer extends Thread{
         }
     }
 
-    public void terminate(){
+    public void terminate() {
         this.running = false;
     }
 }

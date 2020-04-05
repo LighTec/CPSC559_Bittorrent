@@ -14,46 +14,45 @@ import java.util.Arrays;
 
 public class Leadership {
 
-    public static String election(ArrayList<String> peerList){
-        for (int i = 0; i<peerList.size(); i++){
+    public static String election(ArrayList<String> peerList) {
+        for (int i = 0; i < peerList.size(); i++) {
             System.out.println("election " + peerList);
         }
         String newLeader = "";
         Boolean running = false;
         int i = 0;
-        int[] arr = new int [peerList/*.get(0)*/.size()];
+        int[] arr = new int[peerList/*.get(0)*/.size()];
         Random rand = new Random();
 
         //Assigning random numbers to the ip addresses
-        while (i < peerList.size()){
+        while (i < peerList.size()) {
             int randNum = rand.nextInt(10000);
             boolean checker = true;
-            for (int j = 0; j < arr.length; j++){
-                if (arr[j] == randNum){
+            for (int j = 0; j < arr.length; j++) {
+                if (arr[j] == randNum) {
                     checker = false;
                 }
             }
             //checking if we get a number that is already in the list
-            if(checker){
+            if (checker) {
                 arr[i] = randNum;
                 i++;
             }
         }
 
-
-        int [] l = Arrays.copyOf(arr, arr.length);
+        int[] l = Arrays.copyOf(arr, arr.length);
 
         /*Getting the highest id*/
         Arrays.sort(l);
         int p = l[l.length - 1];
 
-        for (i = 0; i < arr.length; i++){
+        for (i = 0; i < arr.length; i++) {
             if (p == arr[i]) {
                 System.out.println("The new leader is: " + peerList.get(i));
                 newLeader = peerList.get(i);
                 break;
             }
         }
-       return newLeader;
+        return newLeader;
     }
 }
