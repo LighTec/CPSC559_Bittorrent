@@ -1,8 +1,11 @@
 package Network.Server;
 
+import Controller.Node;
 import Network.CommandHandler;
+import Network.Leadership;
 import Network.MD5hash;
 import Network.NetworkStatics;
+import com.sun.xml.internal.fastinfoset.util.StringArray;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -12,6 +15,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class UDPServer extends Thread{
@@ -23,6 +27,8 @@ public class UDPServer extends Thread{
     private DatagramPacket recvpacket;
     private DatagramPacket sendpacket;
     private byte[] buf;
+    private Node node;
+
 
     private MD5hash hasher;
 
@@ -30,10 +36,11 @@ public class UDPServer extends Thread{
 
     private boolean running = false;
 
-    public UDPServer(FileManager man){
+    public UDPServer(FileManager man, Node node){
         this.port = port;
         this.hasher = new MD5hash();
         this.handler = new CommandHandler();
+        this.node = node;
         try {
             this.buf = new byte[NetworkStatics.MAX_USEABLE_PACKET_SIZE];
             this.recvsocket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE);
@@ -147,8 +154,20 @@ public class UDPServer extends Thread{
                         // invalid commands reserved for future functions
                         break;
                     case 20:
-                        // TODO implement ready to seed
                         System.err.println("ready to seed not implemented yet: " + getClass().getName());
+                        String fileName2 = new String(parsed[1]).trim();
+                        InetAddress newSeederIP = this.recvpacket.getAddress();
+
+                        node.addPeerToTracker(fileName2, newSeederIP.getHostName());
+                        ArrayList<String> pList = node.getPeerListFromTracker(fileName2);
+
+                        String fIP20 = fileName2 + "," + newSeederIP;
+                        byte[] tosend20 = this.handler.generatePacket(25, fIP20.getBytes());
+
+                        for(String p: pList){
+                            DatagramPacket data = new DatagramPacket(tosend20, tosend20.length, InetAddress.getByName(p), NetworkStatics.SERVER_CONTROL_RECEIVE);
+                            this.sendsocket.send(data);
+                        }
                         break;
                     case 21:
                         // TODO implement unable to seed
@@ -156,9 +175,40 @@ public class UDPServer extends Thread{
                         break;
                     case 22:
                     case 23:
+                        /*CANNOT TEST THIS PART */
+                        String fileNameIP = new String(parsed[1]).trim();
+                        String[] d = fileNameIP.split(",");
+                        node.updateLeader(d[0], d[1]); //d[0] should be the file name and d[1] should be the ip of the leader
+                        break;
                     case 24:
+                        String fileName = new String(parsed[1]).trim();
+
+                        node.deletePeerFromTracker(fileName, node.getLeader(fileName));
+                        ArrayList<String> peerList = node.getPeerListFromTracker(fileName);
+
+                        String newLeader = Leadership.election(peerList);
+                        String fIP = fileName+ "," + newLeader;
+
+                        byte[] tosend24 = this.handler.generatePacket(23, fIP.getBytes());
+                        for (String peer: peerList) {
+                            DatagramPacket data = new DatagramPacket(tosend24, tosend24.length, InetAddress.getByName(peer), NetworkStatics.SERVER_CONTROL_RECEIVE);
+                            this.sendsocket.send(data);
+                        }
+                        break;
                     case 25:
+                        String fileIP = new String(parsed[1]).trim();
+                        String[] data = fileIP.split(",");
+
+                        node.addPeerToTracker(data[0], data[1]);
+
+                        break;
                     case 26:
+                        String fileIP1 = new String(parsed[1]).trim();
+                        String[] data1 = fileIP1.split(",");
+
+                        node.deletePeerFromTracker(data1[0], data1[1]);
+
+                        break;
                     case 27:
                     case 28:
                     case 29:
