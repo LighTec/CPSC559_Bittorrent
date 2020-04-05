@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.lang.*;
@@ -14,7 +15,6 @@ import java.util.Arrays;
 public class Leadership {
 
     public static String election(ArrayList<String> peerList){
-
         for (int i = 0; i<peerList.size(); i++){
             System.out.println("election " + peerList);
         }
@@ -37,7 +37,6 @@ public class Leadership {
             if(checker){
                 arr[i] = randNum;
                 i++;
-
             }
         }
 
@@ -56,8 +55,5 @@ public class Leadership {
             }
         }
        return newLeader;
-
     }
-
-
 }

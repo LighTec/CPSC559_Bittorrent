@@ -6,7 +6,6 @@ import Network.NetworkStatics;
 import Network.Server.FileManager;
 import Network.Server.UDPServer;
 import Network.Tracker;
-
 import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -15,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Node {
 
@@ -114,8 +114,7 @@ public class Node {
                 return t.getPeerList();
             }
         }
-        System.out.println("David... 123123123");
-        return null;
+        return new ArrayList<String>();
     }
 
     public void startClient(String filename) {
@@ -132,14 +131,15 @@ public class Node {
     }
 
     public void addTracker (Tracker tracker) {
-
         this.trackers.add(tracker);
-
     }
 
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
+        String file = n.addFile("./TestFiles/alphabet.txt");
+        System.out.println(file);
+        n.startClient("alphabet.txt");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<String>();
@@ -208,10 +208,5 @@ public class Node {
                 System.out.println("Exiting.....");
                 break;
             }
-        }
-
-        n.stop();
-
-
     }
 }
