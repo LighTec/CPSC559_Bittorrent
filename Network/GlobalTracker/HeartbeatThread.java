@@ -1,15 +1,16 @@
 package Network.GlobalTracker;
 
+import Network.NetworkStatics;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class HeartbeatThread extends Thread {
-
-    public static final int PORT = 1961;
-    public static final int BUFFER_SIZE = 1024;
 
     private GlobalTracker gt;
     private boolean running;
@@ -36,17 +37,16 @@ public class HeartbeatThread extends Thread {
                 boolean alive = false;
                 for (int i = 1; i <= 5; i++) {
                     try {
-                        String message = "Heartbeat";
-
-                        byte[] msg = message.getBytes();
-                        DatagramPacket outPacket = new DatagramPacket(msg, msg.length, InetAddress.getByName(node), PORT);
+                        byte[] cmd = ByteBuffer.allocate(4).putInt(0).array();
+                        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName(node), NetworkStatics.SERVER_CONTROL_RECEIVE);
                         socket.send(outPacket);
 
-                        byte[] inMsg = new byte[BUFFER_SIZE];
+                        byte[] inMsg = new byte[NetworkStatics.MAX_PACKET_SIZE];
                         DatagramPacket inPacket = new DatagramPacket(inMsg, inMsg.length);
                         socket.receive(inPacket);
+                        int inCmd = NetworkStatics.byteArrayToInt(Arrays.copyOfRange(inMsg, 0, 4));
 
-                        if (new String(inPacket.getData(), 0, inPacket.getLength()).equals(message)) {
+                        if (inCmd == 1) {
                             alive = true;
                             System.out.println("<< Alive " + node);
                             break;

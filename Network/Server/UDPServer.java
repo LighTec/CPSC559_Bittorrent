@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
@@ -58,8 +59,16 @@ public class UDPServer extends Thread{
 
                 switch (cmd){
                     case 0:
+                        System.out.println("Request for heartbeat");
+                        InetAddress requesterIP = this.recvpacket.getAddress();
+                        int requesterPort = this.recvpacket.getPort();
+                        byte[] outCmd = ByteBuffer.allocate(4).putInt(1).array();
+                        DatagramPacket outPacket = new DatagramPacket(outCmd, outCmd.length, requesterIP, requesterPort);
+                        this.sendsocket.send(outPacket);
+                        break;
                     case 1:
-                        System.out.println("Hearbeat request/reply sent to server port(" + NetworkStatics.SERVER_CONTROL_RECEIVE + "), should be sent to heartbeat port (" + NetworkStatics.HEARTBEAT_PORT + ").");
+                        System.out.println("Reply to heartbeat");
+//                        System.out.println("Hearbeat request/reply sent to server port(" + NetworkStatics.SERVER_CONTROL_RECEIVE + "), should be sent to heartbeat port (" + NetworkStatics.HEARTBEAT_PORT + ").");
                         break;
                     case 2:
                         break;
