@@ -96,7 +96,9 @@ public class UDPServer extends Thread{
 
                         RandomAccessFile toget = this.fm.getFile(name);
                         byte[] datatosend = new byte[length];
-                        int bytesread = toget.read(datatosend, startindex, length);
+
+                        toget.seek(startindex);
+                        int bytesread = toget.read(datatosend, 0, length);
 
                         if(bytesread != length){
                             System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
