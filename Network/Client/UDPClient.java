@@ -1,16 +1,14 @@
 package Network.Client;
 import Network.MD5hash;
-import Network.NodeList;
 import Network.NetworkStatics;
-import Network.QueryNodes;
+import Network.NodeList;
 
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UDPClient extends Thread {
 	private int port;
