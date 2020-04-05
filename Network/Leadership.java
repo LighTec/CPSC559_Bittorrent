@@ -19,38 +19,18 @@ public class Leadership {
     // Gets the ip address and the mac address
     public static void main(String[] args) throws SocketException {
 
-        InetAddress ip;
-
-        try{
-            ip = InetAddress.getLocalHost();
-            System.out.println("IP address: " + ip.getHostAddress());
-
-            NetworkInterface nw = NetworkInterface.getByInetAddress(ip);
-
-            System.out.print("Mac address: ");
-            byte[] mac = nw.getHardwareAddress();
-
-            mac_address = new StringBuilder();
-            for (int i  = 0; i < mac.length; i++){
-                mac_address.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-            }
-
-            System.out.println(mac_address.toString());
-
-        }catch (UnknownHostException e) {
-
-            e.printStackTrace();
-
-        }
         ArrayList<String> peerList = new ArrayList<String>();
         peerList.add("204.253.165.170");
         peerList.add("158.213.79.168");
         peerList.add("250.56.204.84");
+
         election(peerList);  /// gotta connect to the tracker file first
 
     }
 
     static void election(ArrayList<String> peerList){
+
+        String newLeader = "";
         Boolean running = false;
         int i = 0;
         int[] arr = new int [peerList/*.get(0)*/.size()];
@@ -65,34 +45,35 @@ public class Leadership {
                     checker = false;
                 }
             }
+            //checking if we get a number that is already in the list
             if(checker){
                 arr[i] = randNum;
                 i++;
-                System.out.println("random number: " + randNum);
+               // System.out.println("random number: " + randNum);
             }
         }
 
-        for (int j = 0; j < arr.length; j++){
+      /*  for (int j = 0; j < arr.length; j++){
             System.out.println(arr[j]);
-        }
+        }*/
         int [] l = Arrays.copyOf(arr, arr.length);
 
         Arrays.sort(l);
-        for (int j = 0; j < arr.length; j++){
+   /*     for (int j = 0; j < arr.length; j++){
             System.out.print(l[j]);
             System.out.print(" ");
             System.out.println(arr[j]);
-        }
-        int newLeader = l[l.length - 1];
-        System.out.println(newLeader);
+        }*/
+        int p = l[l.length - 1];
+        //System.out.println(p);
         for (i = 0; i < arr.length; i++){
-            if (newLeader == arr[i]){
-                System.out.println("The new leader is at index: " + i);
+            if (p == arr[i]) {
+                System.out.println("The new leader is at index: " + peerList.get(i));
+                newLeader = peerList.get(i);
                 break;
             }
         }
-
-
+        //System.out.println(newLeader);
 
     }
 
