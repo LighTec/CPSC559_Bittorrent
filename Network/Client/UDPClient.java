@@ -50,8 +50,9 @@ public class UDPClient extends Thread {
 		master = new Master(tempnodelist,filename,26,hash);
 		master.start();
 
-		/*String[] nodeList = findNodes.getNodes();
-		byte[] cmd = ByteBuffer.allocate(4).putInt(45).array();
+		String[] nodeList = findNodes.getNodes();
+		System.out.println(Arrays.toString(nodeList));
+		/*byte[] cmd = ByteBuffer.allocate(4).putInt(45).array();
 		byte[] fname = filename.getBytes();
 		byte[] message = new byte[cmd.length+fname.length];
 		QueryNodes qNodes = new QueryNodes(message,tempnodelist);
