@@ -21,7 +21,9 @@ public class GlobalTracker {
     }
 
     synchronized void addNode(String address) {
-        this.connectedNodes.add(address);
+        if (!this.connectedNodes.contains(address)) {
+            this.connectedNodes.add(address);
+        }
     }
 
     synchronized void deleteNode(String address) {
