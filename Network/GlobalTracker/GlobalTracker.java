@@ -3,7 +3,7 @@ package Network.GlobalTracker;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GlobalTracker {
+public class GlobalTracker implements Pulsable {
 
     private ArrayList<String> connectedNodes;
     private HeartbeatThread beat;
@@ -13,7 +13,7 @@ public class GlobalTracker {
     private GlobalTracker() {
         this.connectedNodes = new ArrayList<>();
         this.connect = new ConnectionThread(this);
-        this.beat = new HeartbeatThread(this);
+        this.beat = new HeartbeatThread<>(this);
         this.rand = new Random();
 
         this.connect.start();
@@ -26,11 +26,11 @@ public class GlobalTracker {
         }
     }
 
-    synchronized void deleteNode(String address) {
+    public synchronized void deleteNode(String address) {
         this.connectedNodes.remove(address);
     }
 
-    synchronized String[] getConnectedNodes() {
+    public synchronized String[] getConnectedNodes() {
         return this.connectedNodes.toArray(new String[]{});
     }
 

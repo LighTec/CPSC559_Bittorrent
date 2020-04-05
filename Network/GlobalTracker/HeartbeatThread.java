@@ -10,13 +10,13 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-public class HeartbeatThread extends Thread {
+public class HeartbeatThread<T extends Pulsable> extends Thread {
 
-    private GlobalTracker gt;
+    private T gt;
     private boolean running;
     private DatagramSocket socket;
 
-    HeartbeatThread(GlobalTracker gt) {
+    HeartbeatThread(T gt) {
         this.gt = gt;
         this.running = false;
         try {
