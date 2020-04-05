@@ -4,6 +4,8 @@ import Network.Client.UDPClient;
 import Network.Server.FileManager;
 import Network.Server.UDPServer;
 
+import java.util.Scanner;
+
 public class Node {
 
     private FileManager fm;
@@ -29,16 +31,57 @@ public class Node {
 
     public static void main(String[] args) {
         Node n = new Node();
-        String hash = n.addFile("./TestFiles/alphabet.txt");
-        System.out.println("Added a file with hash: " + hash);
-        n.startClient("alphabet.txt");
+        Scanner myObj = new Scanner(System.in);
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException i) {
-            i.printStackTrace();
+        String input;
+        while (true) {
+            System.out.println("1: Download a file");
+            System.out.println("2: Upload a file");
+            System.out.println("3 Dubugging mode");
+            System.out.println("4: Exit");
+
+            System.out.print("Enter input here: ");
+            input = myObj.nextLine().trim();
+            /*For downloading*/
+            if(input.equals("1")){
+                System.out.println("What file do you want to download?");
+                System.out.print("Enter file here: (include the type file of i.e. .txt, .zip)");
+                input = myObj.nextLine().trim();
+                n.startClient(input);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException i) {
+                    i.printStackTrace();
+                }
+
+            }
+            /* For uploading file*/
+            else if (input.equals("2")) {
+                System.out.println("What file do you want to upload?");
+                System.out.print("Enter file here including the directory: (for example: ./TestFiles/alphabet.txt)");
+                input = myObj.nextLine().trim();
+                String hash = n.addFile(input);
+                System.out.println("Added a file with hash: " + hash);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException i) {
+                    i.printStackTrace();
+                }
+            }
+            /* For debugging*/
+            else if (input.equals("3")){
+                System.out.println("Debugging mode....");
+                // W.I.P.
+            }
+            /*Exiting*/
+            else if ( input.equals("4")){
+                System.out.println("Exiting.....");
+                break;
+            }
         }
 
         n.stop();
+
+
     }
 }
