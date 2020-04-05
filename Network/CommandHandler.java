@@ -1,9 +1,21 @@
 package Network;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ *     COMMAND STRUCTURE
+ *     00: Heartbeat
+ *     01: Heartbeat reply
+ *     05: Request seeder
+ *     06: Return seeder
+ *     10: Request file
+ *     11: Send file chunk
+ *     12: Resend file chunk
+ *     20: Ready to seed
+ *     22: New file
+ *     23: New leader found
+ *     24: Call election
+ */
 public class CommandHandler {
     private int[] cmdlen;
 
@@ -20,7 +32,6 @@ public class CommandHandler {
     public int getCmdLen(int cmd){
         return this.cmdlen[cmd];
     }
-
 
     private void initcmdlen(){
         this.cmdlen = new int[256];
@@ -71,7 +82,6 @@ public class CommandHandler {
             byte[] lenbytes = NetworkStatics.intToByteArray(len); // get byte array of length integer
             System.arraycopy(lenbytes,0,output,4,4); // copy length bytes to output
             System.arraycopy(data,0,output,8, len); // copy data to output
-
         }else{
             if(data.length != len){
                 throw new IllegalArgumentException("data length does not match cmd length requirement!");
