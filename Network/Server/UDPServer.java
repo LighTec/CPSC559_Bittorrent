@@ -197,14 +197,14 @@ public class UDPServer extends Thread {
                         this.sendsocket.send(this.sendpacket);
                         break;
                     case 20:
-                        System.out.println("20) ");
                         String fileName2 = new String(parsed[1]).trim();
+                        System.out.println("20) " + fileName2);
                         InetAddress newSeederIP = this.recvpacket.getAddress();
 
-                        node.addPeerToTracker(fileName2, newSeederIP.getHostName());
+                        node.addPeerToTracker(fileName2, newSeederIP.getHostAddress());
                         ArrayList<String> pList = node.getPeerListFromTracker(fileName2);
 
-                        String fIP20 = fileName2 + "," + newSeederIP;
+                        String fIP20 = fileName2 + "," + newSeederIP.getHostAddress();
                         byte[] tosend20 = this.handler.generatePacket(25, fIP20.getBytes());
 
                         for (String p : pList) {
@@ -241,18 +241,18 @@ public class UDPServer extends Thread {
                         this.sendsocket.send(data24);
                         break;
                     case 25:
+                        System.out.println("25) ");
+
                         String fileIP = new String(parsed[1]).trim();
                         String[] data = fileIP.split(",");
 
                         node.addPeerToTracker(data[0], data[1]);
-
                         break;
                     case 26:
                         String fileIP1 = new String(parsed[1]).trim();
                         String[] data1 = fileIP1.split(",");
 
                         node.deletePeerFromTracker(data1[0], data1[1]);
-
                         break;
                     case 27:
                     case 28:
