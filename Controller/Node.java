@@ -8,12 +8,10 @@ import Network.Server.UDPServer;
 import Network.Tracker;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Node {
 
@@ -21,10 +19,12 @@ public class Node {
     private UDPServer server;
     private ArrayList<Tracker> trackers;
     private String ip;
+    private int portoffset = 0;
 
     Node() {
         this.fm = new FileManager();
-        this.server = new UDPServer(fm, this);
+        this.portoffset = this.findportoffset();
+        this.server = new UDPServer(fm, this, portoffset);
         this.server.start();
         this.trackers = new ArrayList<>();
         try {
@@ -141,6 +141,22 @@ public class Node {
 
     public void addTracker(Tracker tracker) {
         this.trackers.add(tracker);
+    }
+
+    public int findportoffset(){
+        int tryPort = NetworkStatics.SERVER_CONTROL_RECEIVE;
+        boolean success = false;
+        while(!success){
+            try{
+                DatagramSocket sock = new DatagramSocket(tryPort);
+                success = true;
+                sock.close();
+            } catch (SocketException e) {
+                tryPort++;
+            }
+        }
+        System.out.println("found available port for server bind: " + tryPort);
+        return tryPort;
     }
 
     public static void main(String[] args) throws Exception {
