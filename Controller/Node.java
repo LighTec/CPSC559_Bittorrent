@@ -24,7 +24,7 @@ public class Node {
 
     Node() {
         this.fm = new FileManager();
-        this.server = new UDPServer(fm, this);
+        this.server = new UDPServer(fm, this, NetworkStatics.SERVER_CONTROL_RECEIVE);
         this.server.start();
         this.trackers = new ArrayList<>();
         try {
