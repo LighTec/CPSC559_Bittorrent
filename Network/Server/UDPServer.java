@@ -77,6 +77,9 @@ public class UDPServer extends Thread {
                         System.out.println("Reply to heartbeat");
 //                        System.out.println("Hearbeat request/reply sent to server port(" + NetworkStatics.SERVER_CONTROL_RECEIVE + "), should be sent to heartbeat port (" + NetworkStatics.HEARTBEAT_PORT + ").");
                         break;
+                    case 3:
+                        NetworkStatics.printPacket(parsed[1], "TEST MESSAGE RECEIVED");
+                        break;
                     case 5:
                         // parsed[1] only contains filename, nothing else
                         String filename = new String(parsed[1]).trim();
@@ -133,7 +136,7 @@ public class UDPServer extends Thread {
                                 Collections.addAll(nodesAlist, nodes);
                                 QueryNodes query = new QueryNodes(this.buf, nodesAlist);
                                 byte[] returnedData = query.fileQuery();
-                                this.sendpacket = new DatagramPacket(returnedData, returnedData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
+                                this.sendpacket = new DatagramPacket(returnedData, returnedData.length, this.recvpacket.getAddress(), this.recvpacket.getPort()); // TODO TODO TODO TODO INCREMENT ME SOMEHOW
                                 this.sendsocket.send(this.sendpacket);
                                 break;
                             default:
