@@ -39,6 +39,7 @@ public class CommandHandler {
         Arrays.fill(this.cmdlen, -2);
         this.cmdlen[0] = 0;
         this.cmdlen[1] = 0;
+        this.cmdlen[3] = -1;
         this.cmdlen[5] = -3;
         this.cmdlen[6] = -1;
         this.cmdlen[10] = -1;
