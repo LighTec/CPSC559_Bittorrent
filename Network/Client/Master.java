@@ -1,6 +1,7 @@
 package Network.Client;
 
 import Controller.Node;
+import Network.CommandHandler;
 import Network.NetworkStatics;
 import Network.MD5hash;
 import Network.Tracker;
@@ -107,15 +108,12 @@ public class Master extends Thread {
     public void readyToSeed() throws IOException {
         InetAddress ip = InetAddress.getByAddress(leader);
         DatagramSocket udpSocket = new DatagramSocket(6092);
-        byte[] cmd = ByteBuffer.allocate(4).putInt(20).array();
         byte[] fname = filename.getBytes();
-        byte[] len = ByteBuffer.allocate(4).putInt(fname.length).array();
-        byte[] out = new byte[8 + fname.length];
-        System.arraycopy(cmd, 0, out, 0, cmd.length);
-        System.arraycopy(len, 0, out, cmd.length, len.length);
-        System.arraycopy(fname, 0, out, len.length, fname.length);
+        CommandHandler handl = new CommandHandler();
+        byte[] out = handl.generatePacket(20, fname);
         DatagramPacket packet = new DatagramPacket(out, out.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
+        NetworkStatics.printPacket(out, "TRACKER READY TO SEED REQ");
     }
 
 }
