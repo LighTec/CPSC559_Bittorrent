@@ -38,13 +38,17 @@ public class CommandHandler {
         Arrays.fill(this.cmdlen, -2);
         this.cmdlen[0] = 0;
         this.cmdlen[1] = 0;
-        this.cmdlen[3] = -1;
-        this.cmdlen[4] = 4;
-        this.cmdlen[5] = 20; // TODO figure out length of this guy
+        this.cmdlen[5] = -1;
         this.cmdlen[6] = -1;
         this.cmdlen[10] = -1;
         this.cmdlen[11] = -1;
         this.cmdlen[12] = -1;
+        this.cmdlen[20] = -1;
+        //this.cmdlen[22] = ???;
+        this.cmdlen[23] = -1;
+        this.cmdlen[24] = -1;
+        this.cmdlen[25] = -1;
+        this.cmdlen[26] = -1;
     }
 
     /**
