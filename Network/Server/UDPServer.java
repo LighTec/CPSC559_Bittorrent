@@ -1,10 +1,7 @@
 package Network.Server;
 
 import Controller.Node;
-import Network.CommandHandler;
-import Network.Leadership;
-import Network.MD5hash;
-import Network.NetworkStatics;
+import Network.*;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -81,30 +78,63 @@ public class UDPServer extends Thread {
                         break;
                     case 5:
                         // parsed[1] only contains filename, nothing else
-                        boolean fileAvailable;
-                        try{
-                            this.fm.getFile(parsed[1]);
-                            fileAvailable = true;
-                        }catch(NoSuchFileException e){
-                            fileAvailable = false;
-                        }
-                        if(fileAvailable){
-                            boolean amHeadTracker; // TODO FIGURE OUT HOW TO CHECK IF IM THE HEAD TRACKER
-                            if(amHeadTracker){
-                                // send back peerlist, hash, filesize
+                        String filename = new String(parsed[1]).trim();
+                        int nodeMode = this.node.checkTrackers(filename);
+                        byte[] myIP = InetAddress.getLocalHost().getAddress();
+                        switch (nodeMode) {
+                            case 0: // I am the head tracker
+                                // send back filesize, hash, myIP, peerlist
+                                ArrayList<String> peerlist = this.node.getPeerListFromTracker(filename);
+                                byte[] peerlistbytes = new byte[peerlist.size()*9];
+                                for (int i = 0; i < peerlist.size(); i++) {
+                                        byte[] addr = peerlist.get(i).getBytes();
+                                        System.arraycopy(addr,0,peerlistbytes,i*9,9);
+                                }
+                                byte[] fileLength = NetworkStatics.intToByteArray((int)this.fm.getFilesize(filename));
 
-                            }else{
+                                RandomAccessFile raf = this.fm.getFile(parsed[1]);
+                                byte[] filedatatohash = new byte[(int)raf.length()];
+                                raf.readFully(filedatatohash);
+                                byte[] filehash = this.hasher.hashBytes(filedatatohash);
+                                int outsize = fileLength.length + myIP.length + filehash.length + peerlistbytes.length;
+                                byte[] outData = new byte[outsize];
+
+                                System.arraycopy(fileLength,0,outData,0,4);
+                                System.arraycopy(filehash,0,outData,4,16);
+                                System.arraycopy(myIP,0,outData,20,9);
+                                System.arraycopy(peerlistbytes,0,outData,29, peerlistbytes.length);
+
+                                this.sendpacket = new DatagramPacket(outData, outData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
+                                this.sendsocket.send(this.sendpacket);
+                                break;
+                            case 1: // I am a tracker
                                 // send head tracker info if we know who the head tracker is, but we are not the head tracker
-                                byte[] headtrackerIP = new byte[4]; // TODO get IP ADDRESS OF HEAD TRACKER
-                                byte[] sendHeadTracker = this.handler.generatePacket(7, headtrackerIP);
+                                // current syntax: cmd:
+
+                                byte[] headtrackerIP = this.node.getLeader(filename).getBytes();
+                                byte[] headtrackerOut = new byte[headtrackerIP.length + myIP.length];
+
+                                System.arraycopy(headtrackerIP,0,headtrackerOut,0,headtrackerIP.length);
+                                System.arraycopy(myIP,0,headtrackerOut, headtrackerIP.length,myIP.length);
+                                byte[] sendHeadTracker = this.handler.generatePacket(44, headtrackerOut);
+
                                 this.sendpacket = new DatagramPacket(sendHeadTracker, sendHeadTracker.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                                 this.sendsocket.send(this.sendpacket);
-                            }
-                        }else{
-                            // call query "recursively"
-                        }
+                                break;
+                            case 2: // I am not a tracker
+                                // call query "recursively"
+                                // return whatever is returned to me
 
-                        System.err.println("seeder request not implemented yet: " + getClass().getName());
+                                QueryNodes query = new QueryNodes(this.buf, this.node.getPeerListFromTracker(filename));
+                                byte[] returnedData = query.fileQuery();
+                                byte[] out = this.handler.generatePacket(6, returnedData);
+                                this.sendpacket = new DatagramPacket(out, out.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
+                                this.sendsocket.send(this.sendpacket);
+                                break;
+                            default:
+                                System.err.println("this should not happen!");
+                                break;
+                        }
                         break;
                     case 6:
                         // TODO implement return seeder request
@@ -174,7 +204,6 @@ public class UDPServer extends Thread {
                     case 22:
                         //TODO new file command
                         break;
-                    case 22:
                     case 23:
                         /*CANNOT TEST THIS PART */
                         String fileNameIP = new String(parsed[1]).trim();
