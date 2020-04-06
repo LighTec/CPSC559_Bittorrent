@@ -39,7 +39,7 @@ public class CommandHandler {
         Arrays.fill(this.cmdlen, -2);
         this.cmdlen[0] = 0;
         this.cmdlen[1] = 0;
-        this.cmdlen[5] = -1;
+        this.cmdlen[5] = -3;
         this.cmdlen[6] = -1;
         this.cmdlen[10] = -1;
         this.cmdlen[11] = -1;
@@ -65,7 +65,9 @@ public class CommandHandler {
         parsed[0] = Arrays.copyOfRange(data,0,4); // get command from data
         int cmd = NetworkStatics.byteArrayToInt(data);
         int lencmd = this.getCmdLen(cmd); // check command length
-        if(lencmd == -2) { // if invalid, throw exception
+        if(lencmd == -3){
+            parsed[1] = Arrays.copyOfRange(data,4, data.length);
+        }else if(lencmd == -2) { // if invalid, throw exception
             throw new UnsupportedOperationException("Command not available.");
         } else if(lencmd == -1){ // if variable length, read next 4 bytes as length integer
             lencmd = NetworkStatics.byteArrayToInt(data,4);

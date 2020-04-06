@@ -55,12 +55,14 @@ public class UDPServer extends Thread {
             try {
                 this.recvsocket.receive(this.recvpacket); // wait until we get some data
                 this.buf = this.recvpacket.getData(); // put data into byte buffer
-                byte[][] parsed = this.handler.tokenizepacket(this.buf); // tokenize data
+                byte[] trimmed = new byte[this.recvpacket.getLength()];
+                System.arraycopy(this.buf,0,trimmed,0, trimmed.length);
+                byte[][] parsed = this.handler.tokenizepacket(trimmed); // tokenize data
                 int cmd = NetworkStatics.byteArrayToInt(parsed[0]); // parse first 4 bytes to integer
-
                 // Debug print statements
-                //System.out.println("Command number: " + cmd);
-                //System.out.println("Command length: " + parsed[1].length); // print data length
+                System.out.println("Command number: " + cmd);
+                System.out.println("Command length: " + parsed[1].length); // print data length
+                NetworkStatics.printPacket(trimmed, "PACKET");
 
                 switch (cmd) {
                     case 0:
