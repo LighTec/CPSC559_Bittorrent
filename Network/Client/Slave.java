@@ -24,6 +24,7 @@ public class Slave extends Thread {
 	protected BlockingQueue<byte[]> queue = null;
 	private MD5hash util = new MD5hash();
 	private Map map = new HashMap<Integer,byte[]>();
+	private int packetsize;
 
 	public Slave(final InetAddress addr, final int port, int bytestart, int bytefinish, final String filename, BlockingQueue<byte[]> queue) throws IOException
 	{
@@ -33,7 +34,8 @@ public class Slave extends Thread {
 	 	this.filename = filename;
 	 	this.udpSocket= new DatagramSocket(port);
 	 	this.queue = queue;
-	 	this.numPackets = ((bytefinish-bytestart)/NetworkStatics.MAX_PACKET_SIZE)+1; ///CHECK THIS LOGIC
+	 	this.numPackets = ((bytefinish-bytestart)/NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20)+1;
+	 	this.packetsize = NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20;
 	}
 	
 	public void run()
@@ -69,13 +71,18 @@ public class Slave extends Thread {
 			{
 				if(map.get(i)==null)
 				{
-					int s = i * NetworkStatics.MAX_PACKET_SIZE;
-					int e = s + NetworkStatics.MAX_PACKET_SIZE;
+					int s = i * this.packetsize;
+					int e = s + this.packetsize;
 					if(i==numPackets-1)
-						e = s + ((bytefinish-bytestart)%NetworkStatics.MAX_PACKET_SIZE);
+						e = s + ((bytefinish-bytestart)%this.packetsize);
 					byte[] rangeRequest = prepareRange(s,e);
 					NetworkStatics.printPacket(rangeRequest, "SLAVE RANGE REQUEST");
 					DatagramPacket packet = new DatagramPacket(rangeRequest,rangeRequest.length,addr,NetworkStatics.SERVER_CONTROL_RECEIVE);
+					try {
+						udpSocket.send(packet);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
 			if (rangeThread.isAlive()) {
