@@ -120,7 +120,7 @@ public class Node {
     }
 
     public void startClient(String filename) {
-        new UDPClient(filename).start();
+        new UDPClient(filename, this).start();
     }
 
     public boolean fileOwned(String filename) {
