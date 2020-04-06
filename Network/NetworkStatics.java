@@ -46,6 +46,21 @@ public class NetworkStatics {
         return ByteBuffer.wrap(Arrays.copyOfRange(b,startindex,startindex + 4)).getInt();
     }
 
+    public static byte[] longToByteArray(long n){
+        return ByteBuffer.allocate(8).putLong(n).array();
+    }
+
+    public static long byteArrayToLong(byte[] b){
+        return byteArrayToLong(b,0);
+    }
+
+    public static long byteArrayToLong(byte[] b, int startindex){
+        if(b.length < 8){
+            throw new IllegalArgumentException("Input byte array must be big enough to store a long, in order to cast a long out of it. (min 8 bytes as input).");
+        }
+        return ByteBuffer.wrap(Arrays.copyOfRange(b,startindex,startindex + 8)).getLong();
+    }
+
     public static InetAddress byteArraytoInetAddress(byte[] b, int startindex) throws UnknownHostException {
         byte[] inetaddr = new byte[4];
         System.arraycopy(b,startindex,inetaddr,0,4);

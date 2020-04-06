@@ -120,4 +120,10 @@ public class FileManager {
         }
         return paths;
     }
+
+    public long getFilesize(String filename){
+        String fp = this.mapper.get(filename);
+        File f = new File(fp);
+        return f.length();
+    }
 }
