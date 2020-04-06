@@ -34,11 +34,14 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
             String[] nodes = this.gt.getConnectedNodes();
             for (String node : nodes) {
                 System.out.println(">> Checking " + node);
+                String[] split = node.split(":");
+                String address = split[0];
+                int port = Integer.parseInt(split[1]);
                 boolean alive = false;
                 for (int i = 1; i <= 5; i++) {
                     try {
                         byte[] cmd = ByteBuffer.allocate(4).putInt(0).array();
-                        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName(node), NetworkStatics.SERVER_CONTROL_RECEIVE);
+                        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName(address), port);
                         socket.send(outPacket);
 
                         byte[] inMsg = new byte[NetworkStatics.MAX_PACKET_SIZE];

@@ -35,8 +35,8 @@ public class UDPServer extends Thread {
 
     private boolean running = false;
 
-    public UDPServer(FileManager man, Node node, int portoffset) {
-        this.port = NetworkStatics.SERVER_CONTROL_RECEIVE + portoffset;
+    public UDPServer(FileManager man, Node node) {
+        this.port = NetworkStatics.SERVER_CONTROL_RECEIVE;
         this.hasher = new MD5hash();
         this.handler = new CommandHandler();
         this.node = node;
