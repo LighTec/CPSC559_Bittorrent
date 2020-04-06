@@ -112,6 +112,7 @@ public class Node {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
                 t.addPeerData(peer);
+                System.out.println("Added " + peer + " to " + filename);
             }
         }
     }
