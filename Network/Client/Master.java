@@ -94,7 +94,7 @@ public class Master extends Thread {
 			if(util.compareHash(this.filehash,filehash2)) {
 				System.out.println("hash match, download complete");
 				readyToSeed();
-				Tracker t = new Tracker(this.peerdata, this.filename, this.leader);
+				Tracker t = new Tracker(this.peerdata, this.filename, this.leader, this.n);
 				n.addTracker(t);
 			}
 			else
