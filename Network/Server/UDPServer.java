@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class UDPServer extends Thread {
 
@@ -126,7 +127,8 @@ public class UDPServer extends Thread {
                                 // call query "recursively"
                                 // return whatever is returned to me
                                 String[] nodes = this.nlist.getNodes();
-                                ArrayList<String> nodesAlist = (ArrayList<String>) Arrays.asList(nodes);
+                                ArrayList<String> nodesAlist = new ArrayList<>();
+                                Collections.addAll(nodesAlist, nodes);
                                 QueryNodes query = new QueryNodes(this.buf, nodesAlist);
                                 byte[] returnedData = query.fileQuery();
                                 this.sendpacket = new DatagramPacket(returnedData, returnedData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
@@ -253,7 +255,7 @@ public class UDPServer extends Thread {
                     default:
                         throw new IllegalStateException("Unexpected value in " + getClass().getName() + " switch statement: " + cmd);
                 }
-            } catch(UnknownHostException e) {
+            } catch (UnknownHostException e) {
                 System.out.println("Failed to connect to device...");
                 e.printStackTrace();
             } catch (IOException e) {
@@ -273,13 +275,13 @@ public class UDPServer extends Thread {
         RandomAccessFile toget = this.fm.getFile(name);
         toget.seek(chunkstartindex);
         byte[] filedata = new byte[maxchunklen];
-        int bytesread = toget.read(filedata,0, maxchunklen);
-        if(bytesread == 0){
+        int bytesread = toget.read(filedata, 0, maxchunklen);
+        if (bytesread == 0) {
             throw new IOException("Failed to read any data during file packet generation...");
         }
 
         byte[] output = new byte[bytesread + 20];
-        System.arraycopy(NetworkStatics.intToByteArray(chunknum),0, output, 0, 4);
+        System.arraycopy(NetworkStatics.intToByteArray(chunknum), 0, output, 0, 4);
         byte[] datahash = this.hasher.hashBytes(filedata);
         System.arraycopy(datahash, 0, output, 4, 16);
         System.arraycopy(filedata, 0, output, 20, filedata.length);
@@ -288,7 +290,7 @@ public class UDPServer extends Thread {
         return tosend;
     }
 
-    public void terminate(){
+    public void terminate() {
         this.running = false;
     }
 

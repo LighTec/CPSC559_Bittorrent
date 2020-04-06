@@ -50,7 +50,7 @@ public class Node {
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(this.ip);
-            trackers.add(new Tracker(arrayList, fileName, this.ip, this));
+            trackers.add(new Tracker(arrayList, fileName, this.ip, this, true));
             return "Added File: " + this.fm.addFile(filename);
         } else {
             return "File Added Already";
@@ -146,16 +146,9 @@ public class Node {
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-        String file = n.addFile("./TestFiles/alphabet.txt");
-        System.out.println(file);
+//        String file = n.addFile("./TestFiles/alphabet.txt");
+//        System.out.println(file);
         n.startClient("alphabet.txt");
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        n.stop();
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();
