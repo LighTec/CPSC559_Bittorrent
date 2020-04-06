@@ -10,7 +10,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.file.NoSuchFileException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,12 +26,8 @@ public class UDPServer extends Thread {
     private DatagramPacket sendpacket;
     private byte[] buf;
     private Node node;
-
-
     private MD5hash hasher;
-
     private FileManager fm;
-
     private boolean running = false;
 
     public UDPServer(FileManager man, Node node) {
@@ -100,13 +95,14 @@ public class UDPServer extends Thread {
                                 byte[] filedatatohash = new byte[(int)raf.length()];
                                 raf.readFully(filedatatohash);
                                 byte[] filehash = this.hasher.hashBytes(filedatatohash);
-                                int outsize = fileLength.length + myIP.length + filehash.length + peerlistbytes.length;
+                                int outsize = fileLength.length + myIP.length + filehash.length + peerlistbytes.length + 4;
                                 byte[] outData = new byte[outsize];
 
-                                System.arraycopy(fileLength,0,outData,0,16);
-                                System.arraycopy(filehash,0,outData,16,16);
-                                System.arraycopy(myIP,0,outData,32,9);
-                                System.arraycopy(peerlistbytes,0,outData,41, peerlistbytes.length);
+                                System.arraycopy(NetworkStatics.intToByteArray(45), 0, outData,0,4);
+                                System.arraycopy(fileLength,0,outData,4,16);
+                                System.arraycopy(filehash,0,outData,20,16);
+                                System.arraycopy(myIP,0,outData,36,9);
+                                System.arraycopy(peerlistbytes,0,outData,45, peerlistbytes.length);
 
                                 this.sendpacket = new DatagramPacket(outData, outData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                                 this.sendsocket.send(this.sendpacket);
@@ -140,7 +136,6 @@ public class UDPServer extends Thread {
                         }
                         break;
                     case 6:
-                        // TODO implement return seeder request
                         System.err.println("return seeder not implemented yet: " + getClass().getName());
                         break;
                     case 10:

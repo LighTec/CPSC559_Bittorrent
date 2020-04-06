@@ -8,6 +8,7 @@ import Network.Server.UDPServer;
 import Network.Tracker;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -19,13 +20,22 @@ public class Node {
     private FileManager fm;
     private UDPServer server;
     private ArrayList<Tracker> trackers;
-    private String ip = "2";
+    private String ip;
 
     Node() {
         this.fm = new FileManager();
         this.server = new UDPServer(fm, this);
         this.server.start();
         this.trackers = new ArrayList<>();
+        try {
+            this.ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getIP() {
+        return this.ip;
     }
 
     public String addFile(String filename) {
@@ -40,7 +50,7 @@ public class Node {
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(this.ip);
-            trackers.add(new Tracker(arrayList, fileName, this.ip));
+            trackers.add(new Tracker(arrayList, fileName, this.ip, this));
             return "Added File: " + this.fm.addFile(filename);
         } else {
             return "File Added Already";

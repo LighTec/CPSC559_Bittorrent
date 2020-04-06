@@ -26,28 +26,6 @@ public class UDPClient extends Thread {
 
 	public void run()
 	{
-		InetAddress inetAddress = null;
-		try {
-			inetAddress = InetAddress.getByName("127.0.0.1");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		String url = inetAddress.getHostName();
-		ArrayList<String> tempnodelist = new ArrayList<String>();
-		tempnodelist.add(url);
-		tempnodelist.add(url);
-		String m = "abcdefghijklmnopqrstuvwxyz";
-		byte[] m1 = m.getBytes();
-		byte[] hash = null;
-		try {
-			hash = hasher.hashBytes(m1);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-
-		Master master = new Master(tempnodelist,filename,26,hash,this.n,url);
-		master.start();
-		/*
 		String[] nodeList = findNodes.getNodes();
 		System.out.println(Arrays.toString(nodeList));
 		ArrayList<String> nlist = new ArrayList<String>();
@@ -69,7 +47,6 @@ public class UDPClient extends Thread {
 		}
 		int queryCmd = NetworkStatics.byteArrayToInt(queryData);
 		ArrayList<String> peerList = new ArrayList<String>();
-byte[] fname = ByteBuffer.allocate(32).put(filename.getBytes()).array();
 		if(queryCmd==46) //file not found
 			System.out.println("File Not Found");
 		else if(queryCmd==45) //direct peer list is head cmd4byte:filesize16byte:hash16pyte:yourip9bytes:stringip(9*n)
@@ -123,7 +100,7 @@ byte[] fname = ByteBuffer.allocate(32).put(filename.getBytes()).array();
 			}
 			Master master = new Master(peerList,this.filename,fiSize,fhash,this.n,hd);
 			master.start();
-		}*/
+		}
 	}
 
 	public String startElection(String addr) throws IOException {
