@@ -17,6 +17,8 @@ import java.util.Arrays;
 
 public class UDPServer extends Thread {
 
+    private final boolean OMISSION_FAILURE_TEST = true;
+
     private CommandHandler handler;
     private int port;
     private DatagramSocket recvsocket;
@@ -33,8 +35,8 @@ public class UDPServer extends Thread {
 
     private boolean running = false;
 
-    public UDPServer(FileManager man, Node node) {
-        this.port = NetworkStatics.SERVER_CONTROL_RECEIVE;
+    public UDPServer(FileManager man, Node node, int portoffset) {
+        this.port = NetworkStatics.SERVER_CONTROL_RECEIVE + portoffset;
         this.hasher = new MD5hash();
         this.handler = new CommandHandler();
         this.node = node;
@@ -163,14 +165,16 @@ public class UDPServer extends Thread {
                         DatagramPacket[] sendarray = new DatagramPacket[splitdata.length];
 
                         for (int i = 0; i < splitdata.length; i++) {
-                            byte[] output = new byte[splitdata[i].length + 20];
-                            System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
-                            byte[] datahash = this.hasher.hashBytes(splitdata[i]);
-                            System.arraycopy(datahash, 0, output, 4, 16);
-                            System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
-                            byte[] tosend = this.handler.generatePacket(11, output);
-                            sendarray[i] = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
-                            this.sendsocket.send(sendarray[i]);
+                            if(!OMISSION_FAILURE_TEST || !(i == 0)){
+                                byte[] output = new byte[splitdata[i].length + 20];
+                                System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
+                                byte[] datahash = this.hasher.hashBytes(splitdata[i]);
+                                System.arraycopy(datahash, 0, output, 4, 16);
+                                System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
+                                byte[] tosend = this.handler.generatePacket(11, output);
+                                sendarray[i] = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
+                                this.sendsocket.send(sendarray[i]);
+                            } // else "drop" the packet
                         }
                         break;
                     case 11:
