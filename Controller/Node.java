@@ -153,10 +153,10 @@ public class Node {
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-        new NodeList().getNodes();
-        String file = n.addFile("./TestFiles/alphabet.txt");
-        System.out.println(file);
-//        n.startClient("alphabet.txt");
+        //new NodeList().getNodes();
+        //String file = n.addFile("./TestFiles/alphabet.txt");
+        //System.out.println(file);
+        n.startClient("alphabet.txt");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();

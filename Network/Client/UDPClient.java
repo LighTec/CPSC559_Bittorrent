@@ -46,19 +46,22 @@ public class UDPClient extends Thread {
 			e.printStackTrace();
 		}
 		int queryCmd = NetworkStatics.byteArrayToInt(queryData);
+		System.out.println("QUERY CMD " + queryCmd);
 		ArrayList<String> peerList = new ArrayList<String>();
 		if(queryCmd==46) //file not found
 			System.out.println("File Not Found");
 		else if(queryCmd==45) //direct peer list is head cmd4byte:filesize16byte:hash16pyte:yourip9bytes:stringip(9*n)
 		{
+			NetworkStatics.printPacket(queryData, "QUERY DATA CMD 45");
 			int filesize = ByteBuffer.wrap(Arrays.copyOfRange(queryData,4,20)).getInt();
 			byte[] hash = Arrays.copyOfRange(queryData,20,36);
-			byte[] hip = Arrays.copyOfRange(queryData,36,45);
+			byte[] hip = Arrays.copyOfRange(queryData,36,48);
 			String leader = new String(hip);
-			for(int i=45;i<queryData.length;i+=12)
+			for(int i=48;i<queryData.length;i+=4)
 			{
-				byte[] b = Arrays.copyOfRange(queryData,i,i+12);
+				byte[] b = Arrays.copyOfRange(queryData,i,i+4);
 				String s = new String(b);
+				System.out.println(s);
 				peerList.add(s);
 			}
 			Master master = new Master(peerList,this.filename,filesize,hash,this.n,leader);
@@ -66,9 +69,9 @@ public class UDPClient extends Thread {
 		}
 		else //using head tracker info cmd 44 cmd:headtrackerip9byte:yourip9bytes
 		{
-			byte[] headip = Arrays.copyOfRange(queryData,4,16);
+			byte[] headip = Arrays.copyOfRange(queryData,4,8);
 			String hd = new String(headip);
-			byte[] trackerip = Arrays.copyOfRange(queryData,16,28);
+			byte[] trackerip = Arrays.copyOfRange(queryData,8,12);
 			String td = new String(trackerip);
 			ArrayList<byte[]> peerData = new ArrayList<byte[]>();
 			try {

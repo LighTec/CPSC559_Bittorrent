@@ -73,7 +73,7 @@ public class Master extends Thread {
 
 			try {
 				InetAddress ip = InetAddress.getByName(addr);
-				final Slave slaveThread = new Slave(ip,i+5000,start,end,this.filename,this.queue); //create slave thread with specified byte range and file
+				final Slave slaveThread = new Slave(ip,i+6070,start,end,this.filename,this.queue); //create slave thread with specified byte range and file
 				slaveThread.start(); // start current slave thread
 				threadList.add(slaveThread); // add current slave thread to thread list
 			} catch (IOException e) {}

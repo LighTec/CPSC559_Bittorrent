@@ -14,7 +14,7 @@ import java.util.Collections;
 
 public class UDPServer extends Thread {
 
-    private final boolean OMISSION_FAILURE_TEST = true;
+    private final boolean OMISSION_FAILURE_TEST = false;
 
     private CommandHandler handler;
     private int port;
@@ -86,15 +86,15 @@ public class UDPServer extends Thread {
                         System.out.println("5) Asking for '" + filename + "'");
                         int nodeMode = this.node.checkTrackers(filename);
                         System.out.println("5) Case #" + nodeMode);
-                        byte[] myIP = InetAddress.getByName(this.node.getIP()).getHostAddress().getBytes();
+                        byte[] myIP = InetAddress.getByName(this.node.getIP()).getAddress();
                         switch (nodeMode) {
                             case 0: // I am the head tracker
                                 // send back filesize, hash, myIP, peerlist
                                 ArrayList<String> peerlist = this.node.getPeerListFromTracker(filename);
-                                byte[] peerlistbytes = new byte[peerlist.size() * 9];
+                                byte[] peerlistbytes = new byte[peerlist.size() * 4];
                                 for (int i = 0; i < peerlist.size(); i++) {
-                                    byte[] addr = peerlist.get(i).getBytes();
-                                    System.arraycopy(addr, 0, peerlistbytes, i * 9, 9);
+                                    byte[] addr = InetAddress.getByName(peerlist.get(i)).getAddress();
+                                    System.arraycopy(addr, 0, peerlistbytes, i * 4, 4);
                                 }
                                 byte[] fileLengthUnformatted = NetworkStatics.intToByteArray((int) this.fm.getFilesize(filename));
                                 byte[] fileLength = new byte[16];
@@ -111,8 +111,8 @@ public class UDPServer extends Thread {
                                 System.arraycopy(fileLength, 0, outData, 4, 16);
                                 System.arraycopy(filehash, 0, outData, 20, 16);
                                 System.out.println("5) IP: " + Arrays.toString(myIP));
-                                System.arraycopy(myIP, 0, outData, 36, 9);
-                                System.arraycopy(peerlistbytes, 0, outData, 45, peerlistbytes.length);
+                                System.arraycopy(myIP, 0, outData, 36, 4);
+                                System.arraycopy(peerlistbytes, 0, outData, 40, peerlistbytes.length);
 
                                 this.sendpacket = new DatagramPacket(outData, outData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                                 this.sendsocket.send(this.sendpacket);
