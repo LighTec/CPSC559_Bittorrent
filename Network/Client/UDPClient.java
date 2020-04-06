@@ -37,7 +37,7 @@ public class UDPClient extends Thread {
 		byte[] fname = ByteBuffer.allocate(32).put(filename.getBytes()).array();
 		byte[] message = new byte[36];
 		System.arraycopy(cmd,0,message,0,cmd.length);
-		System.arraycopy(fname,0,message,cmd.length,cmd.length+32);
+		System.arraycopy(fname,0,message,cmd.length,fname.length);
 		QueryNodes qNodes = new QueryNodes(message,nlist);
 		byte[] queryData = null;
 		try {

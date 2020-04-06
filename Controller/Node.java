@@ -49,7 +49,7 @@ public class Node {
             System.out.println("Create Tracker");
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
-            arrayList.add(this.ip);
+            arrayList.add(this.ip + ":" + NetworkStatics.SERVER_CONTROL_RECEIVE);
             trackers.add(new Tracker(arrayList, fileName, this.ip, this, true));
             return "Added File: " + this.fm.addFile(filename);
         } else {

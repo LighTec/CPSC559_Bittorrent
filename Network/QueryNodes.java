@@ -49,7 +49,7 @@ public class QueryNodes {
         for(int i=0;i<notQueried.size();i++)
         {
             InetAddress addr = InetAddress.getByName(notQueried.get(i));
-            FileQuery queryThread = new FileQuery(message, addr, 5050 + i, this);
+            FileQuery queryThread = new FileQuery(message, addr, 6000 + i, this);
             queryThread.start();
             threadList.add(queryThread);
         }
