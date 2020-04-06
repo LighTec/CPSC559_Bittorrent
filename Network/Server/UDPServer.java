@@ -90,7 +90,9 @@ public class UDPServer extends Thread {
                                         byte[] addr = peerlist.get(i).getBytes();
                                         System.arraycopy(addr,0,peerlistbytes,i*9,9);
                                 }
-                                byte[] fileLength = NetworkStatics.intToByteArray((int)this.fm.getFilesize(filename));
+                                byte[] fileLengthUnformatted = NetworkStatics.intToByteArray((int)this.fm.getFilesize(filename));
+                                byte[] fileLength = new byte[16];
+                                System.arraycopy(fileLengthUnformatted,0,fileLength,0,4);
 
                                 RandomAccessFile raf = this.fm.getFile(parsed[1]);
                                 byte[] filedatatohash = new byte[(int)raf.length()];
@@ -99,10 +101,10 @@ public class UDPServer extends Thread {
                                 int outsize = fileLength.length + myIP.length + filehash.length + peerlistbytes.length;
                                 byte[] outData = new byte[outsize];
 
-                                System.arraycopy(fileLength,0,outData,0,4);
-                                System.arraycopy(filehash,0,outData,4,16);
-                                System.arraycopy(myIP,0,outData,20,9);
-                                System.arraycopy(peerlistbytes,0,outData,29, peerlistbytes.length);
+                                System.arraycopy(fileLength,0,outData,0,16);
+                                System.arraycopy(filehash,0,outData,16,16);
+                                System.arraycopy(myIP,0,outData,32,9);
+                                System.arraycopy(peerlistbytes,0,outData,41, peerlistbytes.length);
 
                                 this.sendpacket = new DatagramPacket(outData, outData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                                 this.sendsocket.send(this.sendpacket);
