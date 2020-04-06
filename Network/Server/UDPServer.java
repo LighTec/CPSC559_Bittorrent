@@ -129,8 +129,7 @@ public class UDPServer extends Thread {
 
                                 QueryNodes query = new QueryNodes(this.buf, this.node.getPeerListFromTracker(filename));
                                 byte[] returnedData = query.fileQuery();
-                                byte[] out = this.handler.generatePacket(6, returnedData);
-                                this.sendpacket = new DatagramPacket(out, out.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
+                                this.sendpacket = new DatagramPacket(returnedData, returnedData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                                 this.sendsocket.send(this.sendpacket);
                                 break;
                             default:
