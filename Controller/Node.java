@@ -7,6 +7,8 @@ import Network.Server.FileManager;
 import Network.Server.UDPServer;
 import Network.Tracker;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -18,14 +20,22 @@ public class Node {
     private FileManager fm;
     private UDPServer server;
     private ArrayList<Tracker> trackers;
-    private String ip = "2";
-    private int portoffset = 0;
+    private String ip;
 
     Node() {
         this.fm = new FileManager();
-        this.server = new UDPServer(fm, this, portoffset);
+        this.server = new UDPServer(fm, this);
         this.server.start();
         this.trackers = new ArrayList<>();
+        try {
+            this.ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getIP() {
+        return this.ip;
     }
 
     public String addFile(String filename) {
@@ -40,7 +50,7 @@ public class Node {
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(this.ip);
-            trackers.add(new Tracker(arrayList, fileName, this.ip));
+            trackers.add(new Tracker(arrayList, fileName, this.ip, this));
             return "Added File: " + this.fm.addFile(filename);
         } else {
             return "File Added Already";
@@ -133,37 +143,39 @@ public class Node {
         this.trackers.add(tracker);
     }
 
-    public int findportoffset(){
-        int offset = 0;
-        return offset;
-    }
-
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-//        String file = n.addFile("./TestFiles/alphabet.txt");
-//        System.out.println(file);
-//        n.startClient("alphabet.txt");
+        String file = n.addFile("./TestFiles/alphabet.txt");
+        System.out.println(file);
+        n.startClient("alphabet.txt");
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        n.stop();
 
         /* DELETE ONCE DONE*/
-        ArrayList<String> peerList = new ArrayList<>();
-        peerList.add("69.420.96");
-        peerList.add("96.420.69");
-        peerList.add("123");
-        peerList.add("123313231");
-        peerList.add("2131231241");
-        peerList.add("213123124132131");
-        peerList.add("21312312413123213123142314");
-        String fileName = "alphabet.txt";
-        Tracker t = new Tracker(peerList, fileName, "69.420.96");
-        n.addTracker(t);
-        DatagramSocket sendsocket = new DatagramSocket();
-
-        byte[] fileByte = fileName.getBytes();
-        System.out.println("byte " + Arrays.toString(fileByte));
-        byte[] cmd = cm.generatePacket(24, fileByte);
-        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName("localhost"), NetworkStatics.SERVER_CONTROL_RECEIVE);
-        sendsocket.send(outPacket);
+//        ArrayList<String> peerList = new ArrayList<>();
+//        peerList.add("69.420.96");
+//        peerList.add("96.420.69");
+//        peerList.add("123");
+//        peerList.add("123313231");
+//        peerList.add("2131231241");
+//        peerList.add("213123124132131");
+//        peerList.add("21312312413123213123142314");
+//        String fileName = "alphabet.txt";
+//        Tracker t = new Tracker(peerList, fileName, "69.420.96");
+//        n.addTracker(t);
+//        DatagramSocket sendsocket = new DatagramSocket();
+//
+//        byte[] fileByte = fileName.getBytes();
+//        System.out.println("byte " + Arrays.toString(fileByte));
+//        byte[] cmd = cm.generatePacket(24, fileByte);
+//        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName("localhost"), NetworkStatics.SERVER_CONTROL_RECEIVE);
+//        sendsocket.send(outPacket);
 
         /*
         Scanner myObj = new Scanner(System.in);

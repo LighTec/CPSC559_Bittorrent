@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -29,7 +30,7 @@ public class ConnectionThread extends Thread {
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
                 String msg = in.readLine();
-                if (msg.equals("connect")) {
+                if (msg.startsWith("connect")) {
                     StringBuilder s = new StringBuilder();
                     String[] nodes = this.gt.getRandomNodes(3);
                     for (int i = 0; i < nodes.length; i++) {
@@ -40,7 +41,8 @@ public class ConnectionThread extends Thread {
                     }
                     out.println(s.toString());
 
-                    String address = client.getInetAddress().getCanonicalHostName();
+                    int port = Integer.parseInt(msg.split(":")[1]);
+                    String address = client.getInetAddress().getHostName() + ":" + port;
                     this.gt.addNode(address);
                     System.out.println(">> Added " + address);
                 }
