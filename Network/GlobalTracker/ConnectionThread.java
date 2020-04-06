@@ -31,6 +31,11 @@ public class ConnectionThread extends Thread {
 
                 String msg = in.readLine();
                 if (msg.startsWith("connect")) {
+                    int port = Integer.parseInt(msg.split(":")[1]);
+                    String address = client.getInetAddress().getHostName() + ":" + port;
+                    this.gt.addNode(address);
+                    System.out.println(">> Added " + address);
+
                     StringBuilder s = new StringBuilder();
                     String[] nodes = this.gt.getRandomNodes(3);
                     for (int i = 0; i < nodes.length; i++) {
@@ -41,10 +46,10 @@ public class ConnectionThread extends Thread {
                     }
                     out.println(s.toString());
 
-                    int port = Integer.parseInt(msg.split(":")[1]);
-                    String address = client.getInetAddress().getHostName() + ":" + port;
-                    this.gt.addNode(address);
-                    System.out.println(">> Added " + address);
+//                    int port = Integer.parseInt(msg.split(":")[1]);
+//                    String address = client.getInetAddress().getHostName() + ":" + port;
+//                    this.gt.addNode(address);
+//                    System.out.println(">> Added " + address);
                 }
 
                 in.close();

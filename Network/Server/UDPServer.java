@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class UDPServer extends Thread {
 
@@ -126,7 +127,8 @@ public class UDPServer extends Thread {
                                 // call query "recursively"
                                 // return whatever is returned to me
                                 String[] nodes = this.nlist.getNodes();
-                                ArrayList<String> nodesAlist = (ArrayList<String>) Arrays.asList(nodes);
+                                ArrayList<String> nodesAlist = new ArrayList<>();
+                                Collections.addAll(nodesAlist, nodes);
                                 QueryNodes query = new QueryNodes(this.buf, nodesAlist);
                                 byte[] returnedData = query.fileQuery();
                                 this.sendpacket = new DatagramPacket(returnedData, returnedData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());

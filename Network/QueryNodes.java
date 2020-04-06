@@ -30,7 +30,8 @@ public class QueryNodes {
 
         for (String s : nodelist)
         {
-            InetAddress addr = InetAddress.getByName(s);
+            String ip = s.split(":")[0];
+            InetAddress addr = InetAddress.getByName(ip);
             byte[] bytes = addr.getAddress();
             for (byte b : bytes)
                 b &= 0xFF;
@@ -40,7 +41,7 @@ public class QueryNodes {
                 out = addip(message, bytes);
                 message = new byte[out.length];
                 message = Arrays.copyOfRange(out, 0, out.length);
-                notQueried.add(s);
+                notQueried.add(ip);
             }
             else
                 count--;
