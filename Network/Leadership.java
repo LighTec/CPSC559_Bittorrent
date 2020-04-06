@@ -1,5 +1,11 @@
 package Network;
 
+import javax.sound.midi.Track;
+import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -8,21 +14,10 @@ import java.util.Arrays;
 
 public class Leadership {
 
-    private static StringBuilder mac_address;
-
-    // taken from https://mkyong.com/java/how-to-get-mac-address-in-java/
-    // Gets the ip address and the mac address
-    public static void main(String[] args) throws SocketException {
-        ArrayList<String> peerList = new ArrayList<String>();
-        peerList.add("204.253.165.170");
-        peerList.add("158.213.79.168");
-        peerList.add("250.56.204.84");
-
-        election(peerList);  /// gotta connect to the tracker file first
-    }
-
-    static void election(ArrayList<String> peerList) {
-
+    public static String election(ArrayList<String> peerList) {
+        for (int i = 0; i < peerList.size(); i++) {
+            System.out.println("election " + peerList);
+        }
         String newLeader = "";
         Boolean running = false;
         int i = 0;
@@ -42,30 +37,22 @@ public class Leadership {
             if (checker) {
                 arr[i] = randNum;
                 i++;
-                // System.out.println("random number: " + randNum);
             }
         }
 
-      /*  for (int j = 0; j < arr.length; j++){
-            System.out.println(arr[j]);
-        }*/
         int[] l = Arrays.copyOf(arr, arr.length);
 
+        /*Getting the highest id*/
         Arrays.sort(l);
-   /*     for (int j = 0; j < arr.length; j++){
-            System.out.print(l[j]);
-            System.out.print(" ");
-            System.out.println(arr[j]);
-        }*/
         int p = l[l.length - 1];
-        //System.out.println(p);
+
         for (i = 0; i < arr.length; i++) {
             if (p == arr[i]) {
-                System.out.println("The new leader is at index: " + peerList.get(i));
+                System.out.println("The new leader is: " + peerList.get(i));
                 newLeader = peerList.get(i);
                 break;
             }
         }
-        //System.out.println(newLeader);
+        return newLeader;
     }
 }

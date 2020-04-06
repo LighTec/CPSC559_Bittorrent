@@ -5,15 +5,11 @@ import java.util.ArrayList;
 public class Tracker {
 
     private ArrayList<String> peerList;
-    private int fileSize;
-    private byte[] hash;
     private String fileName;
     private String leader;
 
-    public Tracker(ArrayList<String> peerList, int fileSize, byte[] hash, String fileName, String leader) {
+    public Tracker(ArrayList<String> peerList, String fileName, String leader) {
         this.peerList = peerList;
-        this.fileSize = fileSize;
-        this.hash = hash;
         this.fileName = fileName;
         this.leader = leader;
     }
@@ -42,6 +38,7 @@ public class Tracker {
      * @param newLeader ip address
      */
     public void updateLeader(String newLeader) {
+        deletePeerData(this.leader);
         this.leader = newLeader;
     }
 
@@ -62,11 +59,4 @@ public class Tracker {
         return this.fileName;
     }
 
-    public int getFileSize() {
-        return this.fileSize;
-    }
-
-    public byte[] getHash() {
-        return this.hash;
-    }
 }
