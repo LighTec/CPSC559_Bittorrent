@@ -139,7 +139,7 @@ public class Slave extends Thread {
 		int commandnumber = 10;
 		byte[] cmd = ByteBuffer.allocate(4).putInt(commandnumber).array();
 		byte[] fname = filename.getBytes();
-		byte[] length = ByteBuffer.allocate(4).putInt(fname.length + 12).array();
+		byte[] length = ByteBuffer.allocate(4).putInt(fname.length).array();
 		byte[] begin = ByteBuffer.allocate(4).putInt(start).array();
 		byte[] end = ByteBuffer.allocate(4).putInt(finish).array();
 

@@ -56,7 +56,7 @@ public class UDPServer extends Thread {
                 this.recvsocket.receive(this.recvpacket); // wait until we get some data
                 this.buf = this.recvpacket.getData(); // put data into byte buffer
                 byte[] trimmed = new byte[this.recvpacket.getLength()];
-                System.arraycopy(this.buf,0,trimmed,0, trimmed.length);
+                System.arraycopy(this.buf, 0, trimmed, 0, trimmed.length);
                 byte[][] parsed = this.handler.tokenizepacket(trimmed); // tokenize data
                 int cmd = NetworkStatics.byteArrayToInt(parsed[0]); // parse first 4 bytes to integer
                 // Debug print statements
@@ -197,6 +197,7 @@ public class UDPServer extends Thread {
                         this.sendsocket.send(this.sendpacket);
                         break;
                     case 20:
+                        System.out.println("20) ");
                         String fileName2 = new String(parsed[1]).trim();
                         InetAddress newSeederIP = this.recvpacket.getAddress();
 
