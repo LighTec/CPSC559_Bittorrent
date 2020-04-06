@@ -8,9 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NetworkStatics {
-    public final static int HEARTBEAT_PORT = 6050;
-    public final static int SERVER_CONTROL_RECEIVE = 6051;
-    public final static int SERVER_CONTROL_SEND = 6052;
+
+    public static int SERVER_CONTROL_RECEIVE = 6051;
 
     public final static int MAX_PACKET_SIZE = 65507;
     public final static int MAX_USEABLE_PACKET_SIZE = 65499;
