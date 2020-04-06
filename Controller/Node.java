@@ -7,6 +7,7 @@ import Network.Server.FileManager;
 import Network.Server.UDPServer;
 import Network.Tracker;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -22,13 +23,22 @@ public class Node {
     private FileManager fm;
     private UDPServer server;
     private ArrayList<Tracker> trackers;
-    private String ip = "2";
+    private String ip;
 
     Node() {
         this.fm = new FileManager();
         this.server = new UDPServer(fm, this);
         this.server.start();
         this.trackers = new ArrayList<>();
+        try {
+            this.ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getIP() {
+        return this.ip;
     }
 
     public String addFile(String filename) {
@@ -43,7 +53,7 @@ public class Node {
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(this.ip);
-            trackers.add(new Tracker(arrayList, fileName, this.ip));
+            trackers.add(new Tracker(arrayList, fileName, this.ip, this));
             return "Added File: " + this.fm.addFile(filename);
         } else {
             return "File Added Already";
@@ -120,7 +130,7 @@ public class Node {
     }
 
     public void startClient(String filename) {
-        new UDPClient(filename).start();
+        new UDPClient(filename, this).start();
     }
 
     public boolean fileOwned(String filename) {
@@ -153,7 +163,7 @@ public class Node {
         peerList.add("213123124132131");
         peerList.add("21312312413123213123142314");
         String fileName = "alphabet.txt";
-        Tracker t = new Tracker(peerList, fileName, "69.420.96");
+        Tracker t = new Tracker(peerList, fileName, "69.420.96", n);
         n.addTracker(t);
         DatagramSocket sendsocket = new DatagramSocket();
 

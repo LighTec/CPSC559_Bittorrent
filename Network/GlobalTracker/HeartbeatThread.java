@@ -16,7 +16,7 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
     private boolean running;
     private DatagramSocket socket;
 
-    HeartbeatThread(T gt) {
+    public HeartbeatThread(T gt) {
         this.gt = gt;
         this.running = false;
         try {
@@ -69,7 +69,7 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
         }
     }
 
-    void finish() {
+    public void finish() {
         this.running = false;
     }
 }
