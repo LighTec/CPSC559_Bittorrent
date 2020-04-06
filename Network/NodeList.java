@@ -17,7 +17,7 @@ public class NodeList {
             PrintWriter out = new PrintWriter(client.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-            out.println("connect:" + NetworkStatics.SERVER_CONTROL_RECEIVE);
+            out.println("connect");
             StringBuilder nodesString = new StringBuilder();
             String temp;
             while ((temp = in.readLine()) != null) {

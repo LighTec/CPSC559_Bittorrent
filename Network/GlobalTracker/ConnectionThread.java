@@ -30,7 +30,7 @@ public class ConnectionThread extends Thread {
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
                 String msg = in.readLine();
-                if (msg.startsWith("connect")) {
+                if (msg.equals("connect")) {
                     StringBuilder s = new StringBuilder();
                     String[] nodes = this.gt.getRandomNodes(3);
                     for (int i = 0; i < nodes.length; i++) {
@@ -41,8 +41,7 @@ public class ConnectionThread extends Thread {
                     }
                     out.println(s.toString());
 
-                    int port = Integer.parseInt(msg.split(":")[1]);
-                    String address = client.getInetAddress().getHostName() + ":" + port;
+                    String address = client.getInetAddress().getHostAddress();
                     this.gt.addNode(address);
                     System.out.println(">> Added " + address);
                 }
