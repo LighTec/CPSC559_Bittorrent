@@ -155,10 +155,14 @@ public class UDPServer extends Thread {
                         InetAddress requesterip = this.recvpacket.getAddress();
                         int length10 = endindex10 - startindex10 + 1;
 
+                        System.out.println("10) " + startindex10 + " to " + endindex10);
+
                         RandomAccessFile toget = this.fm.getFile(name10);
                         byte[] datatosend10 = new byte[length10];
                         toget.seek(startindex10);
                         int bytesread = toget.read(datatosend10, 0, length10);
+
+                        System.out.println("10) " + bytesread + " of " + length10);
 
                         if (bytesread != length10) {
                             System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
@@ -167,19 +171,23 @@ public class UDPServer extends Thread {
 
                         // split the datatosend array so it can fit into 64k udp packets
                         byte[][] splitdata = NetworkStatics.chunkBytes(datatosend10, NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20);
-                        DatagramPacket[] sendarray = new DatagramPacket[splitdata.length];
 
                         for (int i = 0; i < splitdata.length; i++) {
-                            if (!OMISSION_FAILURE_TEST || !(i == 0)) {
-                                byte[] output = new byte[splitdata[i].length + 20];
-                                System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
-                                byte[] datahash = this.hasher.hashBytes(splitdata[i]);
-                                System.arraycopy(datahash, 0, output, 4, 16);
-                                System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
-                                byte[] tosend = this.handler.generatePacket(11, output);
-                                sendarray[i] = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
-                                this.sendsocket.send(sendarray[i]);
-                            } // else "drop" the packet
+//                            if (!OMISSION_FAILURE_TEST || !(i == 0)) {
+                            byte[] output = new byte[splitdata[i].length + 20];
+                            System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
+                            byte[] datahash = this.hasher.hashBytes(splitdata[i]);
+                            System.arraycopy(datahash, 0, output, 4, 16);
+                            System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
+                            byte[] tosend = this.handler.generatePacket(11, output);
+                            DatagramPacket packet10 = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            this.sendsocket.send(packet10);
+//                            } // else "drop" the packet
                         }
                         toget.close();
                         break;
