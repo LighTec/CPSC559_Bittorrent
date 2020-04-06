@@ -193,6 +193,10 @@ public class UDPServer extends Thread {
                             DatagramPacket data = new DatagramPacket(tosend24, tosend24.length, InetAddress.getByName(peer), NetworkStatics.SERVER_CONTROL_RECEIVE);
                             this.sendsocket.send(data);
                         }
+                        InetAddress requesterIP24 = this.recvpacket.getAddress();
+                        int requesterPort24 = this.recvpacket.getPort();
+                        DatagramPacket data24 = new DatagramPacket(tosend24, tosend24.length, requesterIP24, requesterPort24);
+                        this.sendsocket.send(data24);
                         break;
                     case 25:
                         String fileIP = new String(parsed[1]).trim();
