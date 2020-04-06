@@ -96,9 +96,7 @@ public class UDPServer extends Thread {
                                     byte[] addr = InetAddress.getByName(peerlist.get(i)).getAddress();
                                     System.arraycopy(addr, 0, peerlistbytes, i * 4, 4);
                                 }
-                                byte[] fileLengthUnformatted = NetworkStatics.intToByteArray((int) this.fm.getFilesize(filename));
-                                byte[] fileLength = new byte[16];
-                                System.arraycopy(fileLengthUnformatted, 0, fileLength, 0, 4);
+                                byte[] fileLength = NetworkStatics.intToByteArray((int) this.fm.getFilesize(filename));
 
                                 RandomAccessFile raf = this.fm.getFile(filename.getBytes());
                                 byte[] filedatatohash = new byte[(int) raf.length()];
@@ -108,11 +106,11 @@ public class UDPServer extends Thread {
                                 byte[] outData = new byte[outsize];
 
                                 System.arraycopy(NetworkStatics.intToByteArray(45), 0, outData, 0, 4);
-                                System.arraycopy(fileLength, 0, outData, 4, 16);
-                                System.arraycopy(filehash, 0, outData, 20, 16);
+                                System.arraycopy(fileLength, 0, outData, 4, 4);
+                                System.arraycopy(filehash, 0, outData, 8, 16);
                                 System.out.println("5) IP: " + Arrays.toString(myIP));
-                                System.arraycopy(myIP, 0, outData, 36, 4);
-                                System.arraycopy(peerlistbytes, 0, outData, 40, peerlistbytes.length);
+                                System.arraycopy(myIP, 0, outData, 24, 4);
+                                System.arraycopy(peerlistbytes, 0, outData, 28, peerlistbytes.length);
 
                                 this.sendpacket = new DatagramPacket(outData, outData.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                                 this.sendsocket.send(this.sendpacket);

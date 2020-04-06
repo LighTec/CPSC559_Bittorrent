@@ -53,11 +53,11 @@ public class UDPClient extends Thread {
 		else if(queryCmd==45) //direct peer list is head cmd4byte:filesize16byte:hash16pyte:yourip9bytes:stringip(9*n)
 		{
 			NetworkStatics.printPacket(queryData, "QUERY DATA CMD 45");
-			int filesize = ByteBuffer.wrap(Arrays.copyOfRange(queryData,4,20)).getInt();
-			byte[] hash = Arrays.copyOfRange(queryData,20,36);
-			byte[] hip = Arrays.copyOfRange(queryData,36,48);
+			int filesize = ByteBuffer.wrap(Arrays.copyOfRange(queryData,4,8)).getInt();
+			byte[] hash = Arrays.copyOfRange(queryData,8,24);
+			byte[] hip = Arrays.copyOfRange(queryData,24,28);
 			String leader = new String(hip);
-			for(int i=48;i<queryData.length;i+=4)
+			for(int i=28;i<queryData.length;i+=4)
 			{
 				byte[] b = Arrays.copyOfRange(queryData,i,i+4);
 				String s = new String(b);
@@ -95,10 +95,11 @@ public class UDPClient extends Thread {
 			byte[] fhash = peerData.get(1);
 			byte[] plist = peerData.get(2);
 
-			for(int i=0;i<plist.length;i+=12)
+			for(int i=0;i<plist.length;i+=4)
 			{
-				byte[] b = Arrays.copyOfRange(plist,i,i+12);
+				byte[] b = Arrays.copyOfRange(plist,i,i+4);
 				String s = new String(b);
+				System.out.println(s);
 				peerList.add(s);
 			}
 			Master master = new Master(peerList,this.filename,fiSize,fhash,this.n,hd);
@@ -108,7 +109,7 @@ public class UDPClient extends Thread {
 
 	public String startElection(String addr) throws IOException {
 		InetAddress ip = InetAddress.getByName(addr);
-		DatagramSocket udpSocket = new DatagramSocket(7777);
+		DatagramSocket udpSocket = new DatagramSocket(6091);
 		byte[] cmd = ByteBuffer.allocate(4).putInt(24).array();
 		byte[] fname = filename.getBytes();
 		byte[] len = ByteBuffer.allocate(4).putInt(fname.length).array();
@@ -131,7 +132,7 @@ public class UDPClient extends Thread {
 
 	public ArrayList<byte[]> getPeerData(String addr) throws IOException {
 		InetAddress ip = InetAddress.getByName(addr);
-		DatagramSocket udpSocket = new DatagramSocket(7776);
+		DatagramSocket udpSocket = new DatagramSocket(6090);
 		ArrayList<byte []> peerData = new ArrayList<byte []>();
 		byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
 		byte[] cmd = ByteBuffer.allocate(4).putInt(5).array();
