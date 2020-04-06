@@ -34,8 +34,10 @@ public class Slave extends Thread {
 	 	this.filename = filename;
 	 	this.udpSocket= new DatagramSocket(port);
 	 	this.queue = queue;
-	 	this.numPackets = ((bytefinish-bytestart)/NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20)+1;
+	 	this.numPackets = ((bytefinish-bytestart)/(NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20))+1;
 	 	this.packetsize = NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20;
+		System.out.println("requesting range start index of " + this.bytestart + " and end index of " + this.bytefinish);
+		System.out.println("packet count: " + this.numPackets);
 	}
 	
 	public void run()
@@ -50,6 +52,12 @@ public class Slave extends Thread {
 			udpSocket.send(dp); //sent message/packet
 			System.out.println("request sent...");
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try{
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -105,6 +113,7 @@ public class Slave extends Thread {
 	}
 
 	public synchronized void processPacket(byte[] bytes) throws InterruptedException, NoSuchAlgorithmException {
+		NetworkStatics.printPacket(bytes, "PACKET TO PROCESS");
 		byte[] seqbyte = Arrays.copyOfRange(bytes,8,12);
 		int seqnum = ByteBuffer.wrap(seqbyte).getInt();
 		byte[] hashSent = Arrays.copyOfRange(bytes,12,28);

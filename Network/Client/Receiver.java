@@ -31,7 +31,7 @@ public class Receiver extends Thread {
 		}
 		while(!this.shutdown) //shuts down when shutdown called from slave
 		{
-			byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE]; //??? size
+			byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
 			DatagramPacket packet = new DatagramPacket(bytes,bytes.length);
 			try {
 				socket.receive(packet);

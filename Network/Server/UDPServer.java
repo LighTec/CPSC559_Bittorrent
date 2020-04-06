@@ -181,6 +181,7 @@ public class UDPServer extends Thread {
                                 this.sendsocket.send(sendarray[i]);
                             } // else "drop" the packet
                         }
+                        toget.close();
                         break;
                     case 11:
                         System.err.println("File chunk sent to server. Discarding...");
