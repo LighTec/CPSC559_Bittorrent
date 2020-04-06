@@ -40,6 +40,7 @@ public class CommandHandler {
         this.cmdlen[1] = 0;
         this.cmdlen[5] = -1;
         this.cmdlen[6] = -1;
+        this.cmdlen[7] = 4;
         this.cmdlen[10] = -1;
         this.cmdlen[11] = -1;
         this.cmdlen[12] = -1;

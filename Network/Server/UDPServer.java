@@ -74,7 +74,30 @@ public class UDPServer extends Thread{
 //                        System.out.println("Hearbeat request/reply sent to server port(" + NetworkStatics.SERVER_CONTROL_RECEIVE + "), should be sent to heartbeat port (" + NetworkStatics.HEARTBEAT_PORT + ").");
                         break;
                     case 5:
-                        // TODO implement seeder request
+                        // parsed[1] only contains filename, nothing else
+                        boolean fileAvailable;
+                        try{
+                            this.fm.getFile(parsed[1]);
+                            fileAvailable = true;
+                        }catch(NoSuchFileException e){
+                            fileAvailable = false;
+                        }
+                        if(fileAvailable){
+                            boolean amHeadTracker; // TODO FIGURE OUT HOW TO CHECK IF IM THE HEAD TRACKER
+                            if(amHeadTracker){
+                                // send back peerlist, hash, filesize
+
+                            }else{
+                                // send head tracker info if we know who the head tracker is, but we are not the head tracker
+                                byte[] headtrackerIP = new byte[4]; // TODO get IP ADDRESS OF HEAD TRACKER
+                                byte[] sendHeadTracker = this.handler.generatePacket(7, headtrackerIP);
+                                this.sendpacket = new DatagramPacket(sendHeadTracker, sendHeadTracker.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
+                                this.sendsocket.send(this.sendpacket);
+                            }
+                        }else{
+                            // call query "recursively"
+                        }
+
                         System.err.println("seeder request not implemented yet: " + getClass().getName());
                         break;
                     case 6:
@@ -129,6 +152,13 @@ public class UDPServer extends Thread{
                         break;
                     case 20:
                         // TODO implement ready to seed
+
+
+
+                        // logic:
+                        // if I am not head tracker for that file, ignore
+                        // otherwise, add sender to tracker list (not sure how to do)
+
                         System.err.println("ready to seed not implemented yet: " + getClass().getName());
                         break;
                     case 22:
@@ -137,6 +167,10 @@ public class UDPServer extends Thread{
                     case 23:
                         break;
                     case 24:
+                        break;
+                    case 25:
+                        break;
+                    case 26:
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value in " + getClass().getName() + " switch statement: " + cmd);
