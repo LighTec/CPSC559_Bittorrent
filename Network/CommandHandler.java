@@ -1,9 +1,21 @@
 package Network;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ *     COMMAND STRUCTURE
+ *     00: Heartbeat
+ *     01: Heartbeat reply
+ *     05: Request seeder
+ *     06: Return seeder
+ *     10: Request file
+ *     11: Send file chunk
+ *     12: Resend file chunk
+ *     20: Ready to seed
+ *     22: New file
+ *     23: New leader found
+ *     24: Call election
+ */
 public class CommandHandler {
     private int[] cmdlen;
 
@@ -27,16 +39,19 @@ public class CommandHandler {
         Arrays.fill(this.cmdlen, -2);
         this.cmdlen[0] = 0;
         this.cmdlen[1] = 0;
-        this.cmdlen[3] = -1;
-        this.cmdlen[4] = 4;
-        this.cmdlen[5] = 20; // TODO figure out length of this guy
+        this.cmdlen[5] = -1;
         this.cmdlen[6] = -1;
         this.cmdlen[10] = -1;
         this.cmdlen[11] = -1;
         this.cmdlen[12] = -1;
+        this.cmdlen[20] = -1;
         this.cmdlen[24] = -1;
         this.cmdlen[23] = -1;
         this.cmdlen[25] = -1;
+        this.cmdlen[26] = -1;
+        this.cmdlen[44] = -1;
+        this.cmdlen[45] = -1;
+        this.cmdlen[46] = -1;
     }
 
     /**
@@ -74,7 +89,6 @@ public class CommandHandler {
             byte[] lenbytes = NetworkStatics.intToByteArray(len); // get byte array of length integer
             System.arraycopy(lenbytes,0,output,4,4); // copy length bytes to output
             System.arraycopy(data,0,output,8, len); // copy data to output
-
         }else{
             if(data.length != len){
                 throw new IllegalArgumentException("data length does not match cmd length requirement!");
@@ -85,5 +99,19 @@ public class CommandHandler {
             }
         }
         return output;
+    }
+
+    public byte[] appendToGeneratedPacket(byte[] original, byte[] append){
+        int len = NetworkStatics.byteArrayToInt(original,4);
+        int newlen = len + append.length;
+        if(newlen > NetworkStatics.MAX_PACKET_SIZE){
+            throw new UnsupportedOperationException("Cannot append data to create a packet larger than DatagramSocket can send");
+        }
+        byte[] newlenbytes = NetworkStatics.intToByteArray(newlen);
+        System.arraycopy(newlenbytes,0,original,4,4);
+        byte[] newpacket = new byte[newlen];
+        System.arraycopy(original,0,newpacket,0,original.length);
+        System.arraycopy(append,0,newpacket,original.length, append.length);
+        return newpacket;
     }
 }
