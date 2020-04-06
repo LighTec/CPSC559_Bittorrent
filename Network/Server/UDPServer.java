@@ -82,9 +82,11 @@ public class UDPServer extends Thread {
                         break;
                     case 5:
                         // parsed[1] only contains filename, nothing else
-                        String filename = new String(parsed[1]).trim();
+                        String filename = new String(parsed[1], 0, 32).trim();
+                        System.out.println("5) Asking for '" + filename + "'");
                         int nodeMode = this.node.checkTrackers(filename);
-                        byte[] myIP = InetAddress.getLocalHost().getAddress();
+                        System.out.println("5) Case #" + nodeMode);
+                        byte[] myIP = InetAddress.getByName(this.node.getIP()).getHostAddress().getBytes();
                         switch (nodeMode) {
                             case 0: // I am the head tracker
                                 // send back filesize, hash, myIP, peerlist
@@ -98,7 +100,7 @@ public class UDPServer extends Thread {
                                 byte[] fileLength = new byte[16];
                                 System.arraycopy(fileLengthUnformatted, 0, fileLength, 0, 4);
 
-                                RandomAccessFile raf = this.fm.getFile(parsed[1]);
+                                RandomAccessFile raf = this.fm.getFile(filename.getBytes());
                                 byte[] filedatatohash = new byte[(int) raf.length()];
                                 raf.readFully(filedatatohash);
                                 byte[] filehash = this.hasher.hashBytes(filedatatohash);
@@ -108,6 +110,7 @@ public class UDPServer extends Thread {
                                 System.arraycopy(NetworkStatics.intToByteArray(45), 0, outData, 0, 4);
                                 System.arraycopy(fileLength, 0, outData, 4, 16);
                                 System.arraycopy(filehash, 0, outData, 20, 16);
+                                System.out.println("5) IP: " + Arrays.toString(myIP));
                                 System.arraycopy(myIP, 0, outData, 36, 9);
                                 System.arraycopy(peerlistbytes, 0, outData, 45, peerlistbytes.length);
 

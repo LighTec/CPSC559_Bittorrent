@@ -55,9 +55,9 @@ public class UDPClient extends Thread {
 			byte[] hash = Arrays.copyOfRange(queryData,20,36);
 			byte[] hip = Arrays.copyOfRange(queryData,36,45);
 			String leader = new String(hip);
-			for(int i=45;i<queryData.length;i+=9)
+			for(int i=45;i<queryData.length;i+=12)
 			{
-				byte[] b = Arrays.copyOfRange(queryData,i,i+9);
+				byte[] b = Arrays.copyOfRange(queryData,i,i+12);
 				String s = new String(b);
 				peerList.add(s);
 			}
@@ -66,9 +66,9 @@ public class UDPClient extends Thread {
 		}
 		else //using head tracker info cmd 44 cmd:headtrackerip9byte:yourip9bytes
 		{
-			byte[] headip = Arrays.copyOfRange(queryData,4,13);
+			byte[] headip = Arrays.copyOfRange(queryData,4,16);
 			String hd = new String(headip);
-			byte[] trackerip = Arrays.copyOfRange(queryData,13,22);
+			byte[] trackerip = Arrays.copyOfRange(queryData,16,28);
 			String td = new String(trackerip);
 			ArrayList<byte[]> peerData = new ArrayList<byte[]>();
 			try {
@@ -92,9 +92,9 @@ public class UDPClient extends Thread {
 			byte[] fhash = peerData.get(1);
 			byte[] plist = peerData.get(2);
 
-			for(int i=0;i<plist.length;i+=9)
+			for(int i=0;i<plist.length;i+=12)
 			{
-				byte[] b = Arrays.copyOfRange(plist,i,i+9);
+				byte[] b = Arrays.copyOfRange(plist,i,i+12);
 				String s = new String(b);
 				peerList.add(s);
 			}

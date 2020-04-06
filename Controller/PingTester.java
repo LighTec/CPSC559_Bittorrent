@@ -7,7 +7,7 @@ import java.net.*;
 
 public class PingTester {
     public static void main(String[] args) throws IOException {
-        String networkToTest = "";
+        String networkToTest = "75.156.158.110";
         int port = 6051;
 
         byte[] helloworld = new String("Hello World").getBytes();

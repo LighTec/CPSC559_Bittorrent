@@ -3,15 +3,19 @@ package Controller;
 import Network.Client.UDPClient;
 import Network.CommandHandler;
 import Network.NetworkStatics;
+import Network.NodeList;
 import Network.Server.FileManager;
 import Network.Server.UDPServer;
 import Network.Tracker;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -28,7 +32,10 @@ public class Node {
         this.server.start();
         this.trackers = new ArrayList<>();
         try {
-            this.ip = InetAddress.getLocalHost().getHostAddress();
+            URL myIP = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    myIP.openStream()));
+            this.ip = in.readLine().trim();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -146,9 +153,10 @@ public class Node {
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-//        String file = n.addFile("./TestFiles/alphabet.txt");
-//        System.out.println(file);
-        n.startClient("alphabet.txt");
+        new NodeList().getNodes();
+        String file = n.addFile("./TestFiles/alphabet.txt");
+        System.out.println(file);
+//        n.startClient("alphabet.txt");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();
