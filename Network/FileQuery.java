@@ -14,6 +14,7 @@ public class FileQuery extends Thread {
         this.message = message;
         this.ip = ip;
         this.udpSocket = new DatagramSocket(port);
+        this.udpSocket.setSoTimeout(3000);
         this.query = query;
     }
 
