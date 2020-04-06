@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class Master extends Thread {
 	
-	private ArrayList<String> peerdata;
+	private ArrayList<byte[]> peerdata;
 	private String filename;
 	private int filesize;
 	private byte[] filehash;
@@ -23,7 +23,7 @@ public class Master extends Thread {
 	private String leader;
 	private Node n;
 
-	public Master(final ArrayList<String> peerdata, String filename, int filesize, byte[] filehash, Node n,String leader)
+	public Master(final ArrayList<byte[]> peerdata, String filename, int filesize, byte[] filehash, Node n,String leader)
 	{
 		this.peerdata = peerdata;
 		this.filename = filename;
@@ -37,6 +37,7 @@ public class Master extends Thread {
 	{
 		ArrayList<Slave> threadList = new ArrayList<Slave>(); // arraylist for tracking slave threads
 		int numPeers = this.peerdata.size();
+		System.out.println("Peer count: " + numPeers);
 		int remainder = this.filesize%numPeers;
 		int size = this.filesize/numPeers;
 		int x = 0;
@@ -45,7 +46,7 @@ public class Master extends Thread {
 		
 		for(int i=0;i<numPeers;i++) //cycle threw peer list assign to slave thread
 		{
-			String addr = this.peerdata.get(i);
+			byte[] addr = this.peerdata.get(i);
 			int start;
 			int end;
 			if(remainder!=0)
@@ -72,7 +73,8 @@ public class Master extends Thread {
 			}
 
 			try {
-				InetAddress ip = InetAddress.getByName(addr);
+				InetAddress ip = InetAddress.getByAddress(addr);
+				System.out.println(ip.getHostAddress());
 				final Slave slaveThread = new Slave(ip,i+6070,start,end,this.filename,this.queue); //create slave thread with specified byte range and file
 				slaveThread.start(); // start current slave thread
 				threadList.add(slaveThread); // add current slave thread to thread list
@@ -94,7 +96,11 @@ public class Master extends Thread {
 			if(util.compareHash(this.filehash,filehash2)) {
 				System.out.println("hash match, download complete");
 				readyToSeed();
-				Tracker t = new Tracker(this.peerdata, this.filename, this.leader, this.n);
+				ArrayList<String> peerStringData = new ArrayList<>();
+				for (int i = 0; i < this.peerdata.size(); i++) {
+					peerStringData.add(InetAddress.getByAddress(this.peerdata.get(i)).getHostAddress());
+				}
+				Tracker t = new Tracker(peerStringData, this.filename, this.leader, this.n);
 				n.addTracker(t);
 			}
 			else
@@ -106,7 +112,7 @@ public class Master extends Thread {
 
 	public void readyToSeed() throws IOException {
 		InetAddress ip = InetAddress.getByName(leader);
-		DatagramSocket udpSocket = new DatagramSocket(7000);
+		DatagramSocket udpSocket = new DatagramSocket(6092);
 		byte[] cmd = ByteBuffer.allocate(4).putInt(20).array();
 		byte[] fname = filename.getBytes();
 		byte[] len = ByteBuffer.allocate(4).putInt(fname.length).array();

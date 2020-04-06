@@ -47,7 +47,7 @@ public class UDPClient extends Thread {
 		}
 		int queryCmd = NetworkStatics.byteArrayToInt(queryData);
 		System.out.println("QUERY CMD " + queryCmd);
-		ArrayList<String> peerList = new ArrayList<String>();
+		ArrayList<byte[]> peerList = new ArrayList<>();
 		if(queryCmd==46) //file not found
 			System.out.println("File Not Found");
 		else if(queryCmd==45) //direct peer list is head cmd4byte:filesize16byte:hash16pyte:yourip9bytes:stringip(9*n)
@@ -60,9 +60,7 @@ public class UDPClient extends Thread {
 			for(int i=28;i<queryData.length;i+=4)
 			{
 				byte[] b = Arrays.copyOfRange(queryData,i,i+4);
-				String s = new String(b);
-				System.out.println(s);
-				peerList.add(s);
+				peerList.add(b);
 			}
 			Master master = new Master(peerList,this.filename,filesize,hash,this.n,leader);
 			master.start();
@@ -98,9 +96,7 @@ public class UDPClient extends Thread {
 			for(int i=0;i<plist.length;i+=4)
 			{
 				byte[] b = Arrays.copyOfRange(plist,i,i+4);
-				String s = new String(b);
-				System.out.println(s);
-				peerList.add(s);
+				peerList.add(b);
 			}
 			Master master = new Master(peerList,this.filename,fiSize,fhash,this.n,hd);
 			master.start();

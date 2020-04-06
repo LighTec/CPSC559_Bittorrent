@@ -39,6 +39,7 @@ public class Slave extends Thread {
 	public void run()
 	{
 		byte[] out = prepareRange(bytestart,bytefinish);
+		NetworkStatics.printPacket(out, "CMD 10 Request");
 		Receiver receiveThread = new Receiver(this, udpSocket);
 		receiveThread.start(); //start receiver thread
 
@@ -73,6 +74,7 @@ public class Slave extends Thread {
 					if(i==numPackets-1)
 						e = s + ((bytefinish-bytestart)%NetworkStatics.MAX_PACKET_SIZE);
 					byte[] rangeRequest = prepareRange(s,e);
+					NetworkStatics.printPacket(rangeRequest, "SLAVE RANGE REQUEST");
 					DatagramPacket packet = new DatagramPacket(rangeRequest,rangeRequest.length,addr,NetworkStatics.SERVER_CONTROL_RECEIVE);
 				}
 			}
@@ -137,7 +139,7 @@ public class Slave extends Thread {
 		int commandnumber = 10;
 		byte[] cmd = ByteBuffer.allocate(4).putInt(commandnumber).array();
 		byte[] fname = filename.getBytes();
-		byte[] length = ByteBuffer.allocate(4).putInt(fname.length).array();
+		byte[] length = ByteBuffer.allocate(4).putInt(fname.length + 12).array();
 		byte[] begin = ByteBuffer.allocate(4).putInt(start).array();
 		byte[] end = ByteBuffer.allocate(4).putInt(finish).array();
 
