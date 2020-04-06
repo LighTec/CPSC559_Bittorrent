@@ -98,4 +98,18 @@ public class CommandHandler {
         }
         return output;
     }
+
+    public byte[] appendToGeneratedPacket(byte[] original, byte[] append){
+        int len = NetworkStatics.byteArrayToInt(original,4);
+        int newlen = len + append.length;
+        if(newlen > NetworkStatics.MAX_PACKET_SIZE){
+            throw new UnsupportedOperationException("Cannot append data to create a packet larger than DatagramSocket can send");
+        }
+        byte[] newlenbytes = NetworkStatics.intToByteArray(newlen);
+        System.arraycopy(newlenbytes,0,original,4,4);
+        byte[] newpacket = new byte[newlen];
+        System.arraycopy(original,0,newpacket,0,original.length);
+        System.arraycopy(append,0,newpacket,original.length, append.length);
+        return newpacket;
+    }
 }
