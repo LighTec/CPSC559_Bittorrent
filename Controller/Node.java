@@ -7,15 +7,11 @@ import Network.Server.FileManager;
 import Network.Server.UDPServer;
 import Network.Tracker;
 
-import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
-import java.util.ArrayList;
 
 public class Node {
 
@@ -23,10 +19,11 @@ public class Node {
     private UDPServer server;
     private ArrayList<Tracker> trackers;
     private String ip = "2";
+    private int portoffset = 0;
 
     Node() {
         this.fm = new FileManager();
-        this.server = new UDPServer(fm, this);
+        this.server = new UDPServer(fm, this, portoffset);
         this.server.start();
         this.trackers = new ArrayList<>();
     }
@@ -134,6 +131,11 @@ public class Node {
 
     public void addTracker(Tracker tracker) {
         this.trackers.add(tracker);
+    }
+
+    public int findportoffset(){
+        int offset = 0;
+        return offset;
     }
 
     public static void main(String[] args) throws Exception {
