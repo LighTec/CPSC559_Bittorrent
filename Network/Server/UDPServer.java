@@ -173,21 +173,22 @@ public class UDPServer extends Thread {
                         byte[][] splitdata = NetworkStatics.chunkBytes(datatosend10, NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20);
 
                         for (int i = 0; i < splitdata.length; i++) {
-//                            if (!OMISSION_FAILURE_TEST || !(i == 0)) {
-                            byte[] output = new byte[splitdata[i].length + 20];
-                            System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
-                            byte[] datahash = this.hasher.hashBytes(splitdata[i]);
-                            System.arraycopy(datahash, 0, output, 4, 16);
-                            System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
-                            byte[] tosend = this.handler.generatePacket(11, output);
-                            DatagramPacket packet10 = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            this.sendsocket.send(packet10);
-//                            } // else "drop" the packet
+                            System.out.println("Sending chunk " + i);
+                            if (!OMISSION_FAILURE_TEST || !(i == 0)) {
+                                byte[] output = new byte[splitdata[i].length + 20];
+                                System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
+                                byte[] datahash = this.hasher.hashBytes(splitdata[i]);
+                                System.arraycopy(datahash, 0, output, 4, 16);
+                                System.arraycopy(splitdata[i], 0, output, 20, splitdata[i].length);
+                                byte[] tosend = this.handler.generatePacket(11, output);
+                                DatagramPacket sendPacket = new DatagramPacket(tosend, tosend.length, requesterip, this.recvpacket.getPort());
+                                this.sendsocket.send(sendPacket);
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            } // else "drop" the packet
                         }
                         toget.close();
                         break;
@@ -200,6 +201,7 @@ public class UDPServer extends Thread {
                         int chunknumber12 = NetworkStatics.byteArrayToInt(parsed[1], 8);
                         byte[] name12 = Arrays.copyOfRange(parsed[1], 12, parsed[1].length);
                         InetAddress requesterip12 = this.recvpacket.getAddress();
+                        System.out.println("Command 12 called: chunk # " + chunknumber12);
 
                         byte[] returnedData12 = this.generateFilePacket(name12, startindex12, endindex12, chunknumber12);
                         this.sendpacket = new DatagramPacket(returnedData12, returnedData12.length, requesterip12, this.recvpacket.getPort());

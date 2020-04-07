@@ -8,7 +8,6 @@ import Network.Tracker;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -85,6 +84,12 @@ public class Master extends Thread {
                     e.printStackTrace();
                 }
             }
+        }
+
+        try {
+            fileThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         try {
