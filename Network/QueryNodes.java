@@ -1,6 +1,7 @@
 package Network;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -49,9 +50,17 @@ public class QueryNodes {
         for(int i=0;i<notQueried.size();i++)
         {
             InetAddress addr = InetAddress.getByName(notQueried.get(i));
-            FileQuery queryThread = new FileQuery(message, addr, 6080 + i, this);
-            queryThread.start();
-            threadList.add(queryThread);
+            boolean tryagain = true;
+            while(tryagain) {
+                try {
+                    FileQuery queryThread = new FileQuery(message, addr, 6080 + i, this);
+                    queryThread.start();
+                    threadList.add(queryThread);
+                    tryagain = false;
+                } catch (BindException e) {
+                    i++;
+                }
+            }
         }
 
         for (FileQuery fileQuery : threadList) {

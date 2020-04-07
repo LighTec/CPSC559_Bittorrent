@@ -13,6 +13,7 @@ public class FileQuery extends Thread {
     public FileQuery(byte[] message,InetAddress ip,int port,QueryNodes query) throws SocketException {
         this.message = message;
         this.ip = ip;
+        System.out.println("Attempting to create filequery object on port " + port);
         this.udpSocket = new DatagramSocket(port);
 //        this.udpSocket.setSoTimeout(2000);
         this.query = query;

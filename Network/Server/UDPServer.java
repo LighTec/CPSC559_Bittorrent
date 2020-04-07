@@ -277,7 +277,7 @@ public class UDPServer extends Thread {
                 System.out.println("Failed to connect to device...");
                 e.printStackTrace();
             } catch (IOException e) {
-                System.err.println("Failure reading data on port " + this.port + ".");
+                System.err.println("Failure reading data on port " + this.port + " in UDPServer.");
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();

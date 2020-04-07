@@ -9,7 +9,6 @@ import Network.QueryNodes;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 

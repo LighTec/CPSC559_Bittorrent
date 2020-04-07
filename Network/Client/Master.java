@@ -4,6 +4,7 @@ import Controller.Node;
 import Network.CommandHandler;
 import Network.NetworkStatics;
 import Network.MD5hash;
+import Network.Server.FileManager;
 import Network.Tracker;
 
 import java.io.IOException;
@@ -101,6 +102,7 @@ public class Master extends Thread {
                 for (int i = 0; i < this.peerdata.size(); i++) {
                     peerStringData.add(InetAddress.getByAddress(this.peerdata.get(i)).getHostAddress());
                 }
+                this.n.getFileManager().addFile(this.filename);
                 Tracker t = new Tracker(peerStringData, this.filename, InetAddress.getByAddress(this.leader).getHostAddress(), this.n);
                 n.addTracker(t);
             } else
