@@ -26,7 +26,7 @@ public class Node {
     private ArrayList<Tracker> trackers;
     private String ip;
 
-    public final static String TESTFILE = ".\\TestFiles\\413.pdf"; // DELETE ME
+    public final static String TESTFILE = ".\\TestFiles\\alphabet.txt"; // DELETE ME
 
     Node() {
         this.fm = new FileManager();
@@ -151,6 +151,10 @@ public class Node {
 
     public void addTracker(Tracker tracker) {
         this.trackers.add(tracker);
+    }
+
+    public FileManager getFileManager() {
+        return this.fm;
     }
 
     public static void main(String[] args) throws Exception {

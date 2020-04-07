@@ -66,11 +66,9 @@ public class UDPServer extends Thread {
 
                 switch (cmd) {
                     case 0:
-                        System.out.println("Request for heartbeat");
-                        InetAddress requesterIP = this.recvpacket.getAddress();
-                        int requesterPort = this.recvpacket.getPort();
-                        byte[] outCmd = ByteBuffer.allocate(4).putInt(1).array();
-                        DatagramPacket outPacket = new DatagramPacket(outCmd, outCmd.length, requesterIP, requesterPort);
+                        System.out.println("Request for heartbeat from " + this.recvpacket.getAddress() + ":" + this.recvpacket.getPort());
+                        byte[] outCmd = this.handler.generatePacket(1, new byte[]{});
+                        DatagramPacket outPacket = new DatagramPacket(outCmd, outCmd.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                         this.sendsocket.send(outPacket);
                         break;
                     case 1:

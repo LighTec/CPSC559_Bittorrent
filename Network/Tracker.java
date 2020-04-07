@@ -29,7 +29,7 @@ public class Tracker implements Pulsable {
         this.leader = leader;
         this.node = node;
         this.isLeader = isLeader;
-        this.beat = new HeartbeatThread<>(this);
+        this.beat = new HeartbeatThread<>(this, 1);
         if (this.isLeader) {
             this.beat.start();
         }

@@ -17,10 +17,14 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
     private DatagramSocket socket;
 
     public HeartbeatThread(T gt) {
+        this(gt ,0);
+    }
+
+    public HeartbeatThread(T gt, int offset) {
         this.gt = gt;
         this.running = false;
         try {
-            this.socket = new DatagramSocket();
+            this.socket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE + 48 + offset);
             this.socket.setSoTimeout(5000);
         } catch (SocketException se) {
             se.printStackTrace();
