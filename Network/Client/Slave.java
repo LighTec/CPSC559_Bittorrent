@@ -88,6 +88,7 @@ public class Slave extends Thread {
 					System.arraycopy(NetworkStatics.intToByteArray(this.bytestart), 0, data, 0, 4);
 					System.arraycopy(NetworkStatics.intToByteArray(this.bytefinish), 0, data, 4, 4);
 					System.arraycopy(NetworkStatics.intToByteArray(i), 0, data, 8, 4);
+					System.arraycopy(fnbytes,0,data,12,fnbytes.length);
 					byte[] rangeRequest = handl.generatePacket(12, data);
 					NetworkStatics.printPacket(rangeRequest, "SLAVE RANGE REQUEST");
 					DatagramPacket packet = new DatagramPacket(rangeRequest,rangeRequest.length,addr,NetworkStatics.SERVER_CONTROL_RECEIVE);
