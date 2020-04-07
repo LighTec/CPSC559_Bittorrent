@@ -155,10 +155,14 @@ public class UDPServer extends Thread {
                         InetAddress requesterip = this.recvpacket.getAddress();
                         int length10 = endindex10 - startindex10 + 1;
 
+                        System.out.println("10) " + startindex10 + " to " + endindex10);
+
                         RandomAccessFile toget = this.fm.getFile(name10);
                         byte[] datatosend10 = new byte[length10];
                         toget.seek(startindex10);
                         int bytesread = toget.read(datatosend10, 0, length10);
+
+                        System.out.println("10) " + bytesread + " of " + length10);
 
                         if (bytesread != length10) {
                             System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
