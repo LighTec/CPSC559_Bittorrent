@@ -50,7 +50,7 @@ public class Node {
     public String addFile(String filename) {
         boolean duplicate = false;
         for (Tracker t : this.trackers) {
-            if (t.getFileName() == filename) {
+            if (t.getFileName().equals(filename)) {
                 duplicate = true;
             }
         }
@@ -156,10 +156,10 @@ public class Node {
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-        //new NodeList().getNodes();
+        new NodeList().getNodes();
         String file = n.addFile(TESTFILE);
         System.out.println(file);
-        n.startClient("413.pdf");
+//        n.startClient("413.pdf");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();
