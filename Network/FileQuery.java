@@ -21,15 +21,28 @@ public class FileQuery extends Thread {
 
     public void run()
     {
-        byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
-        DatagramPacket packet = new DatagramPacket(message,message.length, ip,NetworkStatics.SERVER_CONTROL_RECEIVE);
-        try {
-            udpSocket.send(packet);
-            packet = new DatagramPacket(bytes, bytes.length);
-            udpSocket.receive(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        boolean tryagain = false;
+        byte[] bytes;
+        DatagramPacket packet;
+        do {
+            bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
+            packet = new DatagramPacket(message, message.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
+            try {
+                System.out.println("Sending packet in filequery");
+                udpSocket.send(packet);
+                packet = new DatagramPacket(bytes, bytes.length);
+                System.out.println("Waiting to receive packet...");
+                udpSocket.receive(packet);
+                System.out.println("packet received.");
+                tryagain = false;
+            } catch(SocketTimeoutException e){
+                tryagain = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                tryagain = false;
+            }
+        }while(tryagain);
+        System.out.println("file successfully queried");
         byte[] nout = new byte[packet.getLength()];
         System.arraycopy(bytes, 0, nout, 0, nout.length);
         query.processQuery(nout);

@@ -40,6 +40,7 @@ public class Receiver extends Thread {
 				System.out.println("RECEIVED PACKET OF LENGTH " + bytes.length);
 				slave.processPacket(nout);
 			} catch (SocketTimeoutException e) {
+				System.err.println("socket timeout waiting for packet in receiver...");
 				break;
 			} catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
 				e.printStackTrace();

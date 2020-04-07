@@ -3,9 +3,7 @@ import Network.CommandHandler;
 import Network.NetworkStatics;
 import Network.MD5hash;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -36,7 +34,10 @@ public class Slave extends Thread {
 	 	this.filename = filename;
 	 	this.udpSocket= new DatagramSocket(port);
 	 	this.queue = queue;
-	 	this.numPackets = ((bytefinish-bytestart)/(NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20))+1;
+	 	this.numPackets = ((bytefinish-bytestart)/(NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20));
+	 	if((this.bytefinish - this.bytestart) % (NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20) != 0){
+	 		this.numPackets++;
+		}
 	 	this.packetsize = NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20;
 		System.out.println("requesting range start index of " + this.bytestart + " and end index of " + this.bytefinish);
 		System.out.println("packet count: " + this.numPackets);
@@ -46,8 +47,11 @@ public class Slave extends Thread {
 	{
 		byte[] out = prepareRange(bytestart,bytefinish);
 		NetworkStatics.printPacket(out, "CMD 10 Request");
-		Receiver receiveThread = new Receiver(this, udpSocket);
-		receiveThread.start(); //start receiver thread
+		try {
+			this.udpSocket.setSoTimeout(1000);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 		CommandHandler handl = new CommandHandler();
 		DatagramPacket dp = new DatagramPacket(out, out.length, addr, NetworkStatics.SERVER_CONTROL_RECEIVE); //init packet and bind addr,port
 		try {
@@ -62,23 +66,31 @@ public class Slave extends Thread {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
-		if (receiveThread.isAlive()) {
-			receiveThread.shutdown();
+		System.out.println("looping to get original packets...");
+		for (int i = 0; i < this.numPackets; i++) {
+			System.out.println("Waiting for packet " + i);
+			byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
+			DatagramPacket packet = new DatagramPacket(bytes,bytes.length);
 			try {
-				System.out.println("joining receivethread...");
-				receiveThread.join();
-			} catch (InterruptedException e) {
+				this.udpSocket.receive(packet);
+				byte[] nout = new byte[packet.getLength()];
+				System.arraycopy(bytes, 0, nout, 0, nout.length);
+				System.out.println("RECEIVED PACKET OF LENGTH " + bytes.length);
+				this.processPacket(nout);
+			} catch (SocketTimeoutException e) {
+				// do nothing, the while(ismissing()) loop below handles timeouts
+			} catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("receivethread joined.");
+		try {
+			this.udpSocket.setSoTimeout(3000);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 		while(isMissing())
 		{
 			System.out.println("packets missing, re-requesting...");
-			Receiver rangeThread = new Receiver(this, udpSocket);
-			rangeThread.start();
-
 			for(int i=0;i<numPackets;i++)
 			{
 				if(map.get(i)==null)
@@ -88,6 +100,7 @@ public class Slave extends Thread {
 					System.arraycopy(NetworkStatics.intToByteArray(this.bytestart), 0, data, 0, 4);
 					System.arraycopy(NetworkStatics.intToByteArray(this.bytefinish), 0, data, 4, 4);
 					System.arraycopy(NetworkStatics.intToByteArray(i), 0, data, 8, 4);
+					System.arraycopy(fnbytes,0,data,12,fnbytes.length);
 					byte[] rangeRequest = handl.generatePacket(12, data);
 					NetworkStatics.printPacket(rangeRequest, "SLAVE RANGE REQUEST");
 					DatagramPacket packet = new DatagramPacket(rangeRequest,rangeRequest.length,addr,NetworkStatics.SERVER_CONTROL_RECEIVE);
@@ -96,14 +109,20 @@ public class Slave extends Thread {
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
-				}
-			}
-			if (rangeThread.isAlive()) {
-				rangeThread.shutdown();
-				try {
-					rangeThread.join();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+					System.out.println("Waiting for packet " + i);
+					byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
+					DatagramPacket recvpacket = new DatagramPacket(bytes,bytes.length);
+					try {
+						this.udpSocket.receive(recvpacket);
+						byte[] nout = new byte[recvpacket.getLength()];
+						System.arraycopy(bytes, 0, nout, 0, nout.length);
+						System.out.println("RECEIVED PACKET OF LENGTH " + bytes.length);
+						this.processPacket(nout);
+					} catch (SocketTimeoutException e) {
+						// do nothing, the while(ismissing()) loop below handles timeouts
+					} catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -118,8 +137,7 @@ public class Slave extends Thread {
 	}
 
 	public void processPacket(byte[] bytes) throws InterruptedException, NoSuchAlgorithmException {
-		//NetworkStatics.printPacket(bytes, "PACKET TO PROCESS");
-		System.out.println("processing packet of len " + bytes.length);
+		System.out.println("processing packet of len " + bytes.length + ", with sequence number of " + NetworkStatics.byteArrayToInt(bytes, 8));
 		byte[] seqbyte = Arrays.copyOfRange(bytes,8,12);
 		int seqnum = ByteBuffer.wrap(seqbyte).getInt();
 		byte[] hashSent = Arrays.copyOfRange(bytes,12,28);
