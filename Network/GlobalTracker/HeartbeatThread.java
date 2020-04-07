@@ -15,13 +15,15 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
     private T gt;
     private boolean running;
     private DatagramSocket socket;
+    private String ownIP;
 
-    public HeartbeatThread(T gt) {
-        this(gt ,0);
+    public HeartbeatThread(T gt, String ownIP) {
+        this(gt, ownIP, 0);
     }
 
-    public HeartbeatThread(T gt, int offset) {
+    public HeartbeatThread(T gt, String ownIP, int offset) {
         this.gt = gt;
+        this.ownIP = ownIP;
         this.running = false;
         try {
             this.socket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE + 48 + offset);
@@ -37,6 +39,9 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
         while (this.running) {
             String[] nodes = this.gt.getConnectedNodes();
             for (String node : nodes) {
+                if (node.equals(this.ownIP)) {
+                    continue;
+                }
                 System.out.println(">> Checking " + node);
                 boolean alive = false;
                 for (int i = 1; i <= 5; i++) {
