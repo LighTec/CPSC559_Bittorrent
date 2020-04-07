@@ -13,7 +13,7 @@ public class GlobalTracker implements Pulsable {
     private GlobalTracker() {
         this.connectedNodes = new ArrayList<>();
         this.connect = new ConnectionThread(this);
-        this.beat = new HeartbeatThread<>(this);
+        this.beat = new HeartbeatThread<>(this, "localhost");
         this.rand = new Random();
 
         this.connect.start();
