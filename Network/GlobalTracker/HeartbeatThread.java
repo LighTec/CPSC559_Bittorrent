@@ -25,7 +25,7 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
         this.running = false;
         try {
             this.socket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE + 48 + offset);
-            this.socket.setSoTimeout(5000);
+            this.socket.setSoTimeout(1500);
         } catch (SocketException se) {
             se.printStackTrace();
         }
