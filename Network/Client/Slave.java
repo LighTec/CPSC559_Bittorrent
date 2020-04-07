@@ -1,4 +1,5 @@
 package Network.Client;
+import Network.CommandHandler;
 import Network.NetworkStatics;
 import Network.MD5hash;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Slave extends Thread {
 	
@@ -23,7 +25,7 @@ public class Slave extends Thread {
 	private InetAddress addr;
 	protected BlockingQueue<byte[]> queue = null;
 	private MD5hash util = new MD5hash();
-	private Map map = new HashMap<Integer,byte[]>();
+	private Map map = new ConcurrentHashMap<Integer,byte[]>();
 	private int packetsize;
 
 	public Slave(final InetAddress addr, final int port, int bytestart, int bytefinish, final String filename, BlockingQueue<byte[]> queue) throws IOException
@@ -46,7 +48,7 @@ public class Slave extends Thread {
 		NetworkStatics.printPacket(out, "CMD 10 Request");
 		Receiver receiveThread = new Receiver(this, udpSocket);
 		receiveThread.start(); //start receiver thread
-
+		CommandHandler handl = new CommandHandler();
 		DatagramPacket dp = new DatagramPacket(out, out.length, addr, NetworkStatics.SERVER_CONTROL_RECEIVE); //init packet and bind addr,port
 		try {
 			udpSocket.send(dp); //sent message/packet
@@ -64,14 +66,16 @@ public class Slave extends Thread {
 		if (receiveThread.isAlive()) {
 			receiveThread.shutdown();
 			try {
+				System.out.println("joining receivethread...");
 				receiveThread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-
+		System.out.println("receivethread joined.");
 		while(isMissing())
 		{
+			System.out.println("packets missing, re-requesting...");
 			Receiver rangeThread = new Receiver(this, udpSocket);
 			rangeThread.start();
 
@@ -79,11 +83,12 @@ public class Slave extends Thread {
 			{
 				if(map.get(i)==null)
 				{
-					int s = i * this.packetsize;
-					int e = s + this.packetsize;
-					if(i==numPackets-1)
-						e = s + ((bytefinish-bytestart)%this.packetsize);
-					byte[] rangeRequest = prepareRange(s,e);
+					byte[] fnbytes = this.filename.getBytes();
+					byte[] data = new byte[12+fnbytes.length];
+					System.arraycopy(NetworkStatics.intToByteArray(this.bytestart), 0, data, 0, 4);
+					System.arraycopy(NetworkStatics.intToByteArray(this.bytefinish), 0, data, 4, 4);
+					System.arraycopy(NetworkStatics.intToByteArray(i), 0, data, 8, 4);
+					byte[] rangeRequest = handl.generatePacket(12, data);
 					NetworkStatics.printPacket(rangeRequest, "SLAVE RANGE REQUEST");
 					DatagramPacket packet = new DatagramPacket(rangeRequest,rangeRequest.length,addr,NetworkStatics.SERVER_CONTROL_RECEIVE);
 					try {
@@ -112,15 +117,16 @@ public class Slave extends Thread {
 
 	}
 
-	public synchronized void processPacket(byte[] bytes) throws InterruptedException, NoSuchAlgorithmException {
-		NetworkStatics.printPacket(bytes, "PACKET TO PROCESS");
+	public void processPacket(byte[] bytes) throws InterruptedException, NoSuchAlgorithmException {
+		//NetworkStatics.printPacket(bytes, "PACKET TO PROCESS");
+		System.out.println("processing packet of len " + bytes.length);
 		byte[] seqbyte = Arrays.copyOfRange(bytes,8,12);
 		int seqnum = ByteBuffer.wrap(seqbyte).getInt();
 		byte[] hashSent = Arrays.copyOfRange(bytes,12,28);
 		byte[] message = Arrays.copyOfRange(bytes,28,bytes.length);
 		byte[] hashMessage = util.hashBytes(message);
 		if(util.compareHash(hashSent,hashMessage))
-			map.put(seqnum,message);
+			this.map.put(seqnum,message);
 	}
 
 	public byte[] createChunk()

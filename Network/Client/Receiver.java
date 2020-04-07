@@ -37,6 +37,7 @@ public class Receiver extends Thread {
 				socket.receive(packet);
 				byte[] nout = new byte[packet.getLength()];
 				System.arraycopy(bytes, 0, nout, 0, nout.length);
+				System.out.println("RECEIVED PACKET OF LENGTH " + bytes.length);
 				slave.processPacket(nout);
 			} catch (SocketTimeoutException e) {
 				break;

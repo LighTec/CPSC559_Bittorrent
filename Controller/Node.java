@@ -26,6 +26,8 @@ public class Node {
     private ArrayList<Tracker> trackers;
     private String ip;
 
+    public final static String TESTFILE = ".\\TestFiles\\413.pdf"; // DELETE ME
+
     Node() {
         this.fm = new FileManager();
         this.server = new UDPServer(fm, this, NetworkStatics.SERVER_CONTROL_RECEIVE);
@@ -154,10 +156,10 @@ public class Node {
     public static void main(String[] args) throws Exception {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-        new NodeList().getNodes();
-        String file = n.addFile("./TestFiles/alphabet.txt");
+        //new NodeList().getNodes();
+        String file = n.addFile(TESTFILE);
         System.out.println(file);
-//        n.startClient("alphabet.txt");
+        n.startClient("413.pdf");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();
