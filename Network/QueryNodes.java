@@ -24,6 +24,7 @@ public class QueryNodes {
 
     public byte[] fileQuery() throws IOException
     {
+        System.out.println("querying nodes...");
         ArrayList<FileQuery> threadList = new ArrayList<FileQuery>();
         ArrayList<String> notQueried = new ArrayList<String>();
         int count = nodelist.size();
@@ -57,13 +58,14 @@ public class QueryNodes {
         for (FileQuery fileQuery : threadList) {
             if (fileQuery.isAlive()) {
                 try {
+                    System.out.println("joining queries...");
                     fileQuery.join();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
-
+        System.out.println("all queries joined...");
         if(notFound.size()==count)
             return ByteBuffer.allocate(4).putInt(46).array();
         else if(!peerList.isEmpty())

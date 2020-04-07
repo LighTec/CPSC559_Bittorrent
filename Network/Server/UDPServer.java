@@ -161,7 +161,7 @@ public class UDPServer extends Thread {
                         byte[] datatosend10 = new byte[length10];
                         toget.seek(startindex10);
                         int bytesread = toget.read(datatosend10, 0, length10);
-
+                        toget.close();
                         System.out.println("10) " + bytesread + " of " + length10);
 
                         if (bytesread != length10) {
@@ -190,7 +190,6 @@ public class UDPServer extends Thread {
                                 }
                             } // else "drop" the packet
                         }
-                        toget.close();
                         break;
                     case 11:
                         System.err.println("File chunk sent to server. Discarding...");
@@ -294,6 +293,7 @@ public class UDPServer extends Thread {
         toget.seek(chunkstartindex);
         byte[] filedata = new byte[maxchunklen];
         int bytesread = toget.read(filedata, 0, maxchunklen);
+        toget.close();
         if (bytesread == 0) {
             throw new IOException("Failed to read any data during file packet generation...");
         }

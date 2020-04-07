@@ -157,8 +157,8 @@ public class Node {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
         //new NodeList().getNodes();
-        String file = n.addFile(TESTFILE);
-        System.out.println(file);
+        //String file = n.addFile(TESTFILE);
+        //System.out.println(file);
         n.startClient("413.pdf");
 
         /* DELETE ONCE DONE*/

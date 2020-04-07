@@ -9,7 +9,6 @@ import Network.QueryNodes;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -23,7 +22,7 @@ public class UDPClient extends Thread {
         this.filename = filename;
         this.n = n;
     }
-
+/*
     // TEMPORARY
     public void run() {
 
@@ -53,8 +52,8 @@ public class UDPClient extends Thread {
         Master master = new Master(tempnodelist, filename, 201164, hash, this.n, mike.getBytes());
         master.start();
     }
+*/
 
-/*
     public void run() {
         String[] nodeList = findNodes.getNodes();
         System.out.println(Arrays.toString(nodeList));
@@ -128,7 +127,7 @@ public class UDPClient extends Thread {
             master.start();
         }
     }
-*/
+
     public String startElection(String addr) throws IOException {
         InetAddress ip = InetAddress.getByName(addr);
         DatagramSocket udpSocket = new DatagramSocket(6091);
