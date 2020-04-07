@@ -24,37 +24,36 @@ public class UDPClient extends Thread {
         this.n = n;
     }
 
-    // TEMPORARY
-    public void run() {
+//    // TEMPORARY
+//    public void run() {
+//
+//        InetAddress inetAddress = null;
+//        try {
+//            inetAddress = InetAddress.getByName("127.0.0.1");
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
+//        String url = inetAddress.getHostName();
+//        ArrayList<byte[]> tempnodelist = new ArrayList<>();
+//        byte[] blah = inetAddress.getAddress();
+//        System.out.println(blah.length);
+//        tempnodelist.add(blah);
+//
+//        byte[] hash = null;
+//        try {
+//            hash = hasher.getHashFile(Node.TESTFILE);
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        String mike = "127.0.0.1";
+//
+//        Master master = new Master(tempnodelist, filename, 201164, hash, this.n, mike.getBytes());
+//        master.start();
+//    }
 
-        InetAddress inetAddress = null;
-        try {
-            inetAddress = InetAddress.getByName("127.0.0.1");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        String url = inetAddress.getHostName();
-        ArrayList<byte[]> tempnodelist = new ArrayList<>();
-        byte[] blah = inetAddress.getAddress();
-        System.out.println(blah.length);
-        tempnodelist.add(blah);
-
-        byte[] hash = null;
-        try {
-            hash = hasher.getHashFile(Node.TESTFILE);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String mike = "127.0.0.1";
-
-        Master master = new Master(tempnodelist, filename, 201164, hash, this.n, mike.getBytes());
-        master.start();
-    }
-
-/*
     public void run() {
         String[] nodeList = findNodes.getNodes();
         System.out.println(Arrays.toString(nodeList));
@@ -128,7 +127,7 @@ public class UDPClient extends Thread {
             master.start();
         }
     }
-*/
+
     public String startElection(String addr) throws IOException {
         InetAddress ip = InetAddress.getByName(addr);
         DatagramSocket udpSocket = new DatagramSocket(6091);
