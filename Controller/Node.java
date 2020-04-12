@@ -2,16 +2,24 @@ package Controller;
 
 import Network.Client.UDPClient;
 import Network.CommandHandler;
+import Network.GlobalTracker.HeartbeatThread;
 import Network.NetworkStatics;
+import Network.NodeList;
 import Network.Server.FileManager;
 import Network.Server.UDPServer;
 import Network.Tracker;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Node {
 
@@ -19,16 +27,19 @@ public class Node {
     private UDPServer server;
     private ArrayList<Tracker> trackers;
     private String ip;
-    private int portoffset = 0;
+
+    public final static String TESTFILE = ".\\TestFiles\\alphabet.txt"; // DELETE ME
 
     Node() {
         this.fm = new FileManager();
-        this.portoffset = this.findportoffset();
-        this.server = new UDPServer(fm, this, portoffset);
+        this.server = new UDPServer(fm, this, NetworkStatics.SERVER_CONTROL_RECEIVE);
         this.server.start();
         this.trackers = new ArrayList<>();
         try {
-            this.ip = InetAddress.getLocalHost().getHostAddress();
+            URL myIP = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    myIP.openStream()));
+            this.ip = in.readLine().trim();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,22 +52,21 @@ public class Node {
     public String addFile(String filename) {
         boolean duplicate = false;
         for (Tracker t : this.trackers) {
-            if (t.getFileName() == filename) {
+            if (t.getFileName().equals(filename)) {
                 duplicate = true;
+                break;
             }
         }
         if (!duplicate) {
             System.out.println("Create Tracker");
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
-            arrayList.add(this.ip + ":" + NetworkStatics.SERVER_CONTROL_RECEIVE);
+            arrayList.add(this.ip);
             trackers.add(new Tracker(arrayList, fileName, this.ip, this, true));
             return "Added File: " + this.fm.addFile(filename);
         } else {
             return "File Added Already";
         }
-
-
     }
 
     public void stop() {
@@ -105,6 +115,7 @@ public class Node {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
                 t.addPeerData(peer);
+                System.out.println("Added " + peer + " to " + filename);
             }
         }
     }
@@ -143,35 +154,19 @@ public class Node {
         this.trackers.add(tracker);
     }
 
-    public int findportoffset(){
-        int tryPort = NetworkStatics.SERVER_CONTROL_RECEIVE;
-        boolean success = false;
-        while(!success){
-            try{
-                DatagramSocket sock = new DatagramSocket(tryPort);
-                success = true;
-                sock.close();
-            } catch (SocketException e) {
-                tryPort++;
-            }
-        }
-        System.out.println("found available port for server bind: " + tryPort);
-        return tryPort;
+    public FileManager getFileManager() {
+        return this.fm;
     }
 
     public static void main(String[] args) throws Exception {
-        CommandHandler cm = new CommandHandler();
+  //      HeartbeatThread.init();
+   //     CommandHandler cm = new CommandHandler();
         Node n = new Node();
-        String file = n.addFile("./TestFiles/alphabet.txt");
-        System.out.println(file);
-        n.startClient("alphabet.txt");
-
-        try {
-            Thread.sleep(10000000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        n.stop();
+        new NodeList().getNodes();
+//        String file = n.addFile(TESTFILE);
+//        System.out.println(file);
+//        n.addFile("./TestFiles/413.pdf");
+//        n.startClient("413.pdf");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();
@@ -193,17 +188,16 @@ public class Node {
 //        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName("localhost"), NetworkStatics.SERVER_CONTROL_RECEIVE);
 //        sendsocket.send(outPacket);
 
-        /*
+
         Scanner myObj = new Scanner(System.in);
 
         String input;
         while (true) {
             System.out.println("1: Download a file");
             System.out.println("2: Upload a file");
-            System.out.println("3 Dubugging mode");
-            System.out.println("4: Exit");
+            System.out.println("3: Exit");
 
-            System.out.print("Enter input here: ");
+            System.out.print("Enter the number here: ");
             input = myObj.nextLine().trim();
             //For downloading
             if (input.equals("1")) {
@@ -211,11 +205,15 @@ public class Node {
                 System.out.print("Enter file here: (include the type file of i.e. .txt, .zip)");
                 input = myObj.nextLine().trim();
                 n.startClient(input);
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException i) {
-                    i.printStackTrace();
-                }
+                System.out.println("Downloading.....");
+                Thread.sleep(1000);
+                System.out.println("Check your the folder where you have these files and see the downloaded file");
+                Thread.sleep(1000);
+//                try {
+//                    Thread.sleep(10000);
+//                } catch (InterruptedException i) {
+//                    i.printStackTrace();
+//                }
 
             }
             // For uploading file
@@ -223,25 +221,24 @@ public class Node {
                 System.out.println("What file do you want to upload?");
                 System.out.print("Enter file here including the directory: (for example: ./TestFiles/alphabet.txt)");
                 input = myObj.nextLine().trim();
-                String hash = n.addFile(input);
-                System.out.println("Added a file with hash: " + hash);
-                try {
+
+                n.addFile(input);
+                System.out.println("Your file can now be seeded by others");
+                Thread.sleep(1000);
+                continue;
+               // System.out.println("Added a file with hash: " + hash);
+                /*try {
                     Thread.sleep(10000);
                 } catch (InterruptedException i) {
                     i.printStackTrace();
-                }
-            }
-            // For debugging
-            else if (input.equals("3")) {
-                System.out.println("Debugging mode....");
-                // W.I.P.
+                }*/
             }
             //Exiting
-            else if (input.equals("4")) {
+            else if (input.equals("3")) {
                 System.out.println("Exiting.....");
                 break;
             }
         }
-        */
+
     }
 }
