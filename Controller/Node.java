@@ -2,6 +2,7 @@ package Controller;
 
 import Network.Client.UDPClient;
 import Network.CommandHandler;
+import Network.GlobalTracker.HeartbeatThread;
 import Network.NetworkStatics;
 import Network.NodeList;
 import Network.Server.FileManager;
@@ -52,6 +53,7 @@ public class Node {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
                 duplicate = true;
+                break;
             }
         }
         if (!duplicate) {
@@ -64,8 +66,6 @@ public class Node {
         } else {
             return "File Added Already";
         }
-
-
     }
 
     public void stop() {
@@ -158,11 +158,13 @@ public class Node {
     }
 
     public static void main(String[] args) throws Exception {
+        HeartbeatThread.init();
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
         new NodeList().getNodes();
         String file = n.addFile(TESTFILE);
         System.out.println(file);
+        n.addFile("./TestFiles/413.pdf");
 //        n.startClient("413.pdf");
 
         /* DELETE ONCE DONE*/
