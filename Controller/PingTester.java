@@ -10,7 +10,13 @@ import java.net.*;
  */
 public class PingTester {
     public static void main(String[] args) throws IOException {
-        String networkToTest = "localhost";
+
+        String iu = "127.0.0.1";
+        InetAddress az = InetAddress.getByName(iu);
+
+        System.exit(0);
+
+        String networkToTest = "192.168.62.28";
         int port = 6051;
 
         byte[] helloworld = new String("Hello World").getBytes();

@@ -55,7 +55,7 @@ public class UDPClient extends Thread {
     public void run() {
         String[] nodeList = findNodes.getNodes();
         System.out.println(Arrays.toString(nodeList));
-        ArrayList<String> nlist = new ArrayList<String>();
+        ArrayList<String> nlist = new ArrayList<>();
 
         for (String b : nodeList)
             nlist.add(b);

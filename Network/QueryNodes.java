@@ -26,13 +26,16 @@ public class QueryNodes {
     public byte[] fileQuery() throws IOException
     {
         System.out.println("querying nodes...");
-        ArrayList<FileQuery> threadList = new ArrayList<FileQuery>();
-        ArrayList<String> notQueried = new ArrayList<String>();
+        ArrayList<FileQuery> threadList = new ArrayList<>();
+        ArrayList<String> notQueried = new ArrayList<>();
         int count = nodelist.size();
 
         for (String s : nodelist)
         {
             InetAddress addr = InetAddress.getByName(s);
+            if(!addr.isAnyLocalAddress()){
+
+            }
             byte[] bytes = addr.getAddress();
             for (byte b : bytes)
                 b &= 0xFF;

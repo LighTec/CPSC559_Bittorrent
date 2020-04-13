@@ -227,11 +227,10 @@ public class Node {
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
         new NodeList().getNodes();
-        String file = n.addFile(TESTFILE);
-        System.out.println(file);
-        n.addFile("./TestFiles/413.pdf");
-//        n.startClient("413.pdf");
-
+//        String file = n.addFile(TESTFILE);
+//        System.out.println(file);
+//        n.addFile("./TestFiles/413.pdf");
+        n.startClient("413.pdf");
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();
 //        peerList.add("69.420.96");

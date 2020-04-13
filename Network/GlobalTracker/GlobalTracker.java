@@ -1,5 +1,7 @@
 package Network.GlobalTracker;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,9 +23,14 @@ public class GlobalTracker implements Pulsable {
         this.beat.start();
     }
 
-    synchronized void addNode(String address) {
+    synchronized void addNode(String address) throws UnknownHostException {
         if (!this.connectedNodes.contains(address)) {
-            this.connectedNodes.add(address);
+            if(InetAddress.getByName(address).isLoopbackAddress()){
+                System.out.println("Given address is loopback, skipping");
+            }else{
+                this.connectedNodes.add(address);
+            }
+
         }
     }
 
