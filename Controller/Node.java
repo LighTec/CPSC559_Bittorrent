@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class Node {
 
-    public final static boolean LOCAL_ONLY = true;
+    public final static boolean LOCAL_ONLY = false;
 
     private FileManager fm;
     private UDPServer server;
