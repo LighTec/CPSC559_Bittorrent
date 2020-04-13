@@ -12,15 +12,14 @@ import Network.Tracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Node {
+
+    public final static boolean LOCAL_ONLY = true;
 
     private FileManager fm;
     private UDPServer server;
@@ -30,24 +29,45 @@ public class Node {
     public final static String TESTFILE = ".\\TestFiles\\alphabet.txt"; // DELETE ME
 
     Node() {
+        // initialize filemanager, start UDP server, create empty arraylist of trackers
         this.fm = new FileManager();
         this.server = new UDPServer(fm, this, NetworkStatics.SERVER_CONTROL_RECEIVE);
         this.server.start();
         this.trackers = new ArrayList<>();
-        try {
-            URL myIP = new URL("http://checkip.amazonaws.com");
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    myIP.openStream()));
-            this.ip = in.readLine().trim();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        // if running in LAN only mode, get local address. Otherwise, get WAN address.
+        if(LOCAL_ONLY){
+            try {
+                this.ip = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }else{
+            try {
+                URL myIP = new URL("http://checkip.amazonaws.com");
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        myIP.openStream()));
+                this.ip = in.readLine().trim();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
+    /**
+     * Get IP address of this machine, as other peers see it.
+     * @return
+     */
     public String getIP() {
         return this.ip;
     }
 
+    /**
+     * Add a local file to the node to make it available.
+     * @param filename
+     * @return
+     */
     public String addFile(String filename) {
         boolean duplicate = false;
         for (Tracker t : this.trackers) {
@@ -68,6 +88,9 @@ public class Node {
         }
     }
 
+    /**
+     * Terminate this node.
+     */
     public void stop() {
         this.server.terminate();
     }
@@ -92,6 +115,11 @@ public class Node {
         return 2;
     }
 
+    /**
+     * Get the current head tracker for a filename.
+     * @param filename
+     * @return
+     */
     public String getLeader(String filename) {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
@@ -102,6 +130,11 @@ public class Node {
         return "";
     }
 
+    /**
+     * Update the lead tracker for a filename, in the local tracker list.
+     * @param filename
+     * @param leader
+     */
     public void updateLeader(String filename, String leader) {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
@@ -110,6 +143,11 @@ public class Node {
         }
     }
 
+    /**
+     * Add a peer to the local tracker list, for a specific filename.
+     * @param filename
+     * @param peer
+     */
     public void addPeerToTracker(String filename, String peer) {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
@@ -119,6 +157,11 @@ public class Node {
         }
     }
 
+    /**
+     * Delete a peer from the local tracker list, for a specfic filename.
+     * @param filename
+     * @param peer
+     */
     public void deletePeerFromTracker(String filename, String peer) {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
@@ -127,6 +170,11 @@ public class Node {
         }
     }
 
+    /**
+     * Get the peer list for a filename from the local tracker.
+     * @param filename
+     * @return
+     */
     public ArrayList<String> getPeerListFromTracker(String filename) {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
@@ -136,10 +184,19 @@ public class Node {
         return new ArrayList<>();
     }
 
+    /**
+     * Start the UDPClient to send requests to other nodes, and receive file data.
+     * @param filename
+     */
     public void startClient(String filename) {
         new UDPClient(filename, this).start();
     }
 
+    /**
+     * Check if this Node has a tracker for the specified file. If it does not, then the file is not "owned" by anybody.
+     * @param filename
+     * @return
+     */
     public boolean fileOwned(String filename) {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
@@ -149,10 +206,18 @@ public class Node {
         return false;
     }
 
+    /**
+     * Add a new tracker to the list, used when a new file is added locally.
+     * @param tracker
+     */
     public void addTracker(Tracker tracker) {
         this.trackers.add(tracker);
     }
 
+    /**
+     * Return the FileManager, which is used to access the physical files on disk.
+     * @return
+     */
     public FileManager getFileManager() {
         return this.fm;
     }

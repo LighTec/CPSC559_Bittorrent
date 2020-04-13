@@ -5,6 +5,9 @@ import Network.CommandHandler;
 import java.io.IOException;
 import java.net.*;
 
+/**
+ * Used for testing if a firewall is blocking the program.
+ */
 public class PingTester {
     public static void main(String[] args) throws IOException {
         String networkToTest = "localhost";
