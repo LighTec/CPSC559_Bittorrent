@@ -87,6 +87,7 @@ public class FileManager {
        if(newfile.exists()){
            String name = NetworkStatics.getFilenameFromFilepath(filePath);
            this.mapper.put(name, filePath);
+           System.out.println("added to filepaths available: " + filePath);
            return name;
        }else{
            System.err.println("request to add nonexistent file at " + filePath);
@@ -121,6 +122,11 @@ public class FileManager {
         return paths;
     }
 
+    /**
+     * Get the filesize for a locally stored file.
+     * @param filename
+     * @return
+     */
     public long getFilesize(String filename){
         String fp = this.mapper.get(filename);
         File f = new File(fp);

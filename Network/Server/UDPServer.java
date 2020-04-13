@@ -117,7 +117,7 @@ public class UDPServer extends Thread {
                                 // send head tracker info if we know who the head tracker is, but we are not the head tracker
                                 // current syntax: cmd:
 
-                                byte[] headtrackerIP = this.node.getLeader(filename).getBytes();
+                                byte[] headtrackerIP = InetAddress.getByName(this.node.getLeader(filename)).getAddress();
                                 byte[] headtrackerOut = new byte[headtrackerIP.length + myIP.length];
 
                                 System.arraycopy(headtrackerIP, 0, headtrackerOut, 0, headtrackerIP.length);
@@ -234,6 +234,13 @@ public class UDPServer extends Thread {
 
                         node.deletePeerFromTracker(fileName, node.getLeader(fileName));
                         ArrayList<String> peerList = node.getPeerListFromTracker(fileName);
+
+                        System.out.println("PEER LIST FOR ELECTION");
+                        System.out.println("size: " + peerList.size());
+                        for (int i = 0; i < peerList.size(); i++) {
+                            System.out.println(peerList.get(i));
+                        }
+                        System.out.println("PEER LIST END");
 
                         String newLeader = Leadership.election(peerList);
                         String fIP = fileName + "," + newLeader;
