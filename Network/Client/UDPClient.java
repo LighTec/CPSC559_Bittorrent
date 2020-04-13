@@ -23,7 +23,6 @@ public class UDPClient extends Thread {
         this.n = n;
     }
 
-//    // TEMPORARY
 //    public void run() {
 //
 //        InetAddress inetAddress = null;
@@ -91,12 +90,25 @@ public class UDPClient extends Thread {
             }
             Master master = new Master(peerList, this.filename, filesize, hash, this.n, hip);
             master.start();
-        } else //using head tracker info cmd 44 cmd:headtrackerip9byte:yourip9bytes
+        }
+        else
         {
-            byte[] headip = Arrays.copyOfRange(queryData, 4, 8);
-            String hd = new String(headip);
-            byte[] trackerip = Arrays.copyOfRange(queryData, 8, 12);
-            String td = new String(trackerip);
+            byte[] headip = Arrays.copyOfRange(queryData, 8, 12);
+            String hd = null;
+            try {
+                hd = InetAddress.getByAddress(headip).getHostAddress();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            System.out.println(hd);
+            byte[] trackerip = Arrays.copyOfRange(queryData, 12, 16);
+            String td = null;
+            try {
+                td = InetAddress.getByAddress(trackerip).getHostAddress();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            System.out.println(td);
             ArrayList<byte[]> peerData = new ArrayList<byte[]>();
             try {
                 peerData = getPeerData(hd);
@@ -104,10 +116,11 @@ public class UDPClient extends Thread {
                 e.printStackTrace();
             }
             String newhead = null;
-            if (peerData == null) {
+            if (peerData.isEmpty()) {
                 try {
                     hd = startElection(td);
-                    peerData = getPeerData(newhead);
+                    headip = InetAddress.getByName(hd).getAddress(); //check
+                    peerData = getPeerData(hd);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -141,11 +154,13 @@ public class UDPClient extends Thread {
         DatagramPacket packet = new DatagramPacket(out, out.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
         packet = new DatagramPacket(bytes, bytes.length);
+        System.out.println("sent about to receive");
         udpSocket.receive(packet);
+        System.out.println("election receive");
         int ipstart = 4 + fname.length + 1;
-        byte[] data = new byte[packet.getLength()];
-        data = Arrays.copyOfRange(bytes, ipstart, ipstart + 9);
-        String nip = new String(data);
+        byte[] data = new byte[4];
+        data = Arrays.copyOfRange(bytes, ipstart, ipstart + 4);
+        String nip = new String(data); ///check this
         udpSocket.close();
         return nip;
     }

@@ -12,25 +12,29 @@ import java.util.Arrays;
 
 public class HeartbeatThread<T extends Pulsable> extends Thread {
 
+    private static DatagramSocket socket;
+
     private T gt;
     private boolean running;
-    private DatagramSocket socket;
     private String ownIP;
 
-    public HeartbeatThread(T gt, String ownIP) {
-        this(gt, ownIP, 0);
+    public static void init() {
+        init(0);
     }
 
-    public HeartbeatThread(T gt, String ownIP, int offset) {
-        this.gt = gt;
-        this.ownIP = ownIP;
-        this.running = false;
+    public static void init(int offset) {
         try {
-            this.socket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE + 48 + offset);
-            this.socket.setSoTimeout(1500);
+            socket = new DatagramSocket(NetworkStatics.SERVER_CONTROL_RECEIVE + 48 + offset);
+            socket.setSoTimeout(1500);
         } catch (SocketException se) {
             se.printStackTrace();
         }
+    }
+
+    public HeartbeatThread(T gt, String ownIP) {
+        this.gt = gt;
+        this.ownIP = ownIP;
+        this.running = false;
     }
 
     @Override
@@ -42,28 +46,7 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
                 if (node.equals(this.ownIP)) {
                     continue;
                 }
-                System.out.println(">> Checking " + node);
-                boolean alive = false;
-                for (int i = 1; i <= 5; i++) {
-                    try {
-                        byte[] cmd = ByteBuffer.allocate(4).putInt(0).array();
-                        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName(node), NetworkStatics.SERVER_CONTROL_RECEIVE);
-                        socket.send(outPacket);
-
-                        byte[] inMsg = new byte[NetworkStatics.MAX_PACKET_SIZE];
-                        DatagramPacket inPacket = new DatagramPacket(inMsg, inMsg.length);
-                        socket.receive(inPacket);
-                        int inCmd = NetworkStatics.byteArrayToInt(Arrays.copyOfRange(inMsg, 0, 4));
-
-                        if (inCmd == 1) {
-                            alive = true;
-                            System.out.println("<< Alive " + node);
-                            break;
-                        }
-                    } catch (IOException ioe) {
-                        System.out.println(String.format("!! Timeout %d %s", i, node));
-                    }
-                }
+                boolean alive = pulseNode(node);
                 if (!alive) {
                     System.out.println(">> Removed node " + node);
                     this.gt.deleteNode(node);
@@ -80,5 +63,29 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
 
     public void finish() {
         this.running = false;
+    }
+
+    private synchronized static boolean pulseNode(String node) {
+        System.out.println(">> Checking " + node);
+        for (int i = 1; i <= 5; i++) {
+            try {
+                byte[] cmd = ByteBuffer.allocate(4).putInt(0).array();
+                DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName(node), NetworkStatics.SERVER_CONTROL_RECEIVE);
+                socket.send(outPacket);
+
+                byte[] inMsg = new byte[NetworkStatics.MAX_PACKET_SIZE];
+                DatagramPacket inPacket = new DatagramPacket(inMsg, inMsg.length);
+                socket.receive(inPacket);
+                int inCmd = NetworkStatics.byteArrayToInt(Arrays.copyOfRange(inMsg, 0, 4));
+
+                if (inCmd == 1) {
+                    System.out.println("<< Alive " + node);
+                    return true;
+                }
+            } catch (IOException ioe) {
+                System.out.println(String.format("!! Timeout %d %s", i, node));
+            }
+        }
+        return false;
     }
 }

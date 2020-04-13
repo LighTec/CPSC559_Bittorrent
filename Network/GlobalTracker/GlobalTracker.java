@@ -6,13 +6,14 @@ import java.util.Random;
 public class GlobalTracker implements Pulsable {
 
     private ArrayList<String> connectedNodes;
-    private HeartbeatThread beat;
+    private HeartbeatThread<GlobalTracker> beat;
     private ConnectionThread connect;
     private Random rand;
 
     private GlobalTracker() {
         this.connectedNodes = new ArrayList<>();
         this.connect = new ConnectionThread(this);
+        HeartbeatThread.init(1);
         this.beat = new HeartbeatThread<>(this, "localhost");
         this.rand = new Random();
 
