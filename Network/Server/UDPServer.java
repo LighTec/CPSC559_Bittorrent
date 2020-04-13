@@ -168,7 +168,7 @@ public class UDPServer extends Thread {
                         }
 
                         // split the datatosend array so it can fit into 64k udp packets
-                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend10, NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20);
+                        byte[][] splitdata = NetworkStatics.chunkBytes(datatosend10, NetworkStatics.FILECHUNK_SIZE);
 
                         for (int i = 0; i < splitdata.length; i++) {
                             System.out.println("Sending chunk " + i);
@@ -290,8 +290,8 @@ public class UDPServer extends Thread {
     }
 
     private byte[] generateFilePacket(byte[] name, int start, int end, int chunknum) throws IOException, NoSuchAlgorithmException {
-        int chunkstartindex = start + (chunknum * (NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20));
-        int chunkendindex = chunkstartindex + NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20;
+        int chunkstartindex = start + (chunknum * (NetworkStatics.FILECHUNK_SIZE));
+        int chunkendindex = chunkstartindex + NetworkStatics.FILECHUNK_SIZE;
         int maxchunklen = chunkendindex - chunkstartindex + 1;
 
         RandomAccessFile toget = this.fm.getFile(name);
