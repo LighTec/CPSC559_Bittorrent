@@ -106,7 +106,7 @@ public class UDPServer extends Thread {
                                 System.arraycopy(NetworkStatics.intToByteArray(45), 0, outData, 0, 4);
                                 System.arraycopy(fileLength, 0, outData, 4, 4);
                                 System.arraycopy(filehash, 0, outData, 8, 16);
-                                System.out.println("5) IP: " + Arrays.toString(myIP));
+                                System.out.println("5) IP: " + InetAddress.getByAddress(myIP).getHostAddress());
                                 System.arraycopy(myIP, 0, outData, 24, 4);
                                 System.arraycopy(peerlistbytes, 0, outData, 28, peerlistbytes.length);
 

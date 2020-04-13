@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class Node {
 
-    public final static boolean LOCAL_ONLY = false;
+    public final static boolean LOCAL_ONLY = true;
 
     private FileManager fm;
     private UDPServer server;
@@ -37,11 +37,8 @@ public class Node {
 
         // if running in LAN only mode, get local address. Otherwise, get WAN address.
         if(LOCAL_ONLY){
-            try {
-                this.ip = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+            //this.ip = InetAddress.getLocalHost().getHostAddress();
+            this.ip = "192.168.62.2";       /// MANUALLY EDIT ME
         }else{
             try {
                 URL myIP = new URL("http://checkip.amazonaws.com");
