@@ -61,9 +61,16 @@ public class UDPClient extends Thread {
 
         byte[] cmd = ByteBuffer.allocate(4).putInt(5).array();
         byte[] fname = ByteBuffer.allocate(32).put(filename.getBytes()).array();
-        byte[] message = new byte[36];
+        byte[] myIP = new byte[0];
+        try {
+            myIP = InetAddress.getByName(n.getIP()).getAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        byte[] message = new byte[40];
         System.arraycopy(cmd, 0, message, 0, cmd.length);
         System.arraycopy(fname, 0, message, cmd.length, fname.length);
+        System.arraycopy(myIP, 0, message, 36, myIP.length);
         QueryNodes qNodes = new QueryNodes(message, nlist);
         byte[] queryData = null;
         try {
