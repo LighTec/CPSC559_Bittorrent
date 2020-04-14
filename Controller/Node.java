@@ -239,6 +239,7 @@ public class Node {
             System.out.println("3: Exit");
             System.out.print("Enter you choice: ");
             input = myObj.nextLine().trim();
+            System.out.println("");
 
             switch (input) {
                 case "1": // For downloading
@@ -260,7 +261,7 @@ public class Node {
                     System.out.print("Enter file path including the directory (for example: .\\TestFiles\\alphabet.txt): ");
                     input = myObj.nextLine().trim();
                     String name = n.addFile(input);
-                    System.out.println("Your file can now be seeded by others as " + name);
+                    System.out.println("Your file can now be downloaded by others as " + name);
                     break;
                 case "3": // Exiting
                     System.out.println("Exiting.....");

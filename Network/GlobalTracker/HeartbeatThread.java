@@ -16,7 +16,7 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
     public static boolean debug = false;
 
     private T gt;
-    private boolean running;
+    public boolean running;
     private String ownIP;
 
     public static void init() {

@@ -64,7 +64,9 @@ public class Tracker implements Pulsable {
 
         this.isLeader = this.leader.equals(this.node.getIP());
         if (this.isLeader) {
-            this.beat.start();
+            if (!this.beat.running) {
+                this.beat.start();
+            }
         } else {
             this.beat.finish();
         }
