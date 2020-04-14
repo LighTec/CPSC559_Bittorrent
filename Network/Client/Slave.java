@@ -36,8 +36,8 @@ public class Slave extends Thread {
 	 	this.filename = filename;
 	 	this.udpSocket= new DatagramSocket(port);
 	 	this.queue = queue;
-	 	this.numPackets = ((bytefinish-bytestart)/(NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20))+1;
-	 	this.packetsize = NetworkStatics.MAX_USEABLE_PACKET_SIZE - 20;
+	 	this.numPackets = ((bytefinish-bytestart)/(NetworkStatics.FILECHUNK_SIZE))+1;
+	 	this.packetsize = NetworkStatics.FILECHUNK_SIZE;
 		System.out.println("requesting range start index of " + this.bytestart + " and end index of " + this.bytefinish);
 		System.out.println("packet count: " + this.numPackets);
 	}

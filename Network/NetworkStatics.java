@@ -13,6 +13,8 @@ public class NetworkStatics {
     public final static int MAX_PACKET_SIZE = 65028;
     public final static int MAX_USEABLE_PACKET_SIZE = 65000;
 
+    public final static int FILECHUNK_SIZE = 64000;
+
     /**
      * Formats an integer into a byte array of length 4. Returned array is little endian.
      * @param n input integer

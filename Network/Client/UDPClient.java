@@ -55,7 +55,7 @@ public class UDPClient extends Thread {
     public void run() {
         String[] nodeList = findNodes.getNodes();
         System.out.println(Arrays.toString(nodeList));
-        ArrayList<String> nlist = new ArrayList<String>();
+        ArrayList<String> nlist = new ArrayList<>();
 
         nlist.addAll(Arrays.asList(nodeList));
 
@@ -131,6 +131,7 @@ public class UDPClient extends Thread {
             for (int i = 0; i < plist.length; i += 4) {
                 byte[] b = Arrays.copyOfRange(plist, i, i + 4);
                 peerList.add(b);
+                NetworkStatics.printPacket(b, "PEER ADDED");
             }
             Master master = new Master(peerList, this.filename, fiSize, fhash, this.n, headip);
             master.start();

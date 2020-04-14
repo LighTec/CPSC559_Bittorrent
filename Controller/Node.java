@@ -12,9 +12,7 @@ import Network.Tracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Node {
@@ -37,11 +35,8 @@ public class Node {
 
         // if running in LAN only mode, get local address. Otherwise, get WAN address.
         if(LOCAL_ONLY){
-            try {
-                this.ip = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+            //this.ip = InetAddress.getLocalHost().getHostAddress();
+            this.ip = "192.168.62.2";       /// MANUALLY EDIT ME
         }else{
             try {
                 URL myIP = new URL("http://checkip.amazonaws.com");

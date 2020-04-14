@@ -4,13 +4,16 @@ import Controller.Node;
 import Network.CommandHandler;
 import Network.NetworkStatics;
 import Network.MD5hash;
-import Network.Server.FileManager;
 import Network.Tracker;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -34,16 +37,16 @@ public class Master extends Thread {
         this.n = n;
     }
 
-    public void run() ////add split file algorithm to get byte range for each peer
+    public void run()
     {
-        ArrayList<Slave> threadList = new ArrayList<Slave>(); // arraylist for tracking slave threads
+        ArrayList<Slave> threadList = new ArrayList<>(); // arraylist for tracking slave threads
         int numPeers = this.peerdata.size();
         System.out.println("Peer count: " + numPeers);
         int remainder = this.filesize % numPeers;
         int size = this.filesize / numPeers;
         int x = 0;
-        final Thread fileThread = new Thread(new FileThread(this.queue, this.filename, numPeers));
-        fileThread.start();
+        //final Thread fileThread = new Thread(new FileThread(this.queue, this.filename, numPeers));
+        //fileThread.start();
 
         for (int i = 0; i < numPeers; i++) //cycle threw peer list assign to slave thread
         {
@@ -88,8 +91,24 @@ public class Master extends Thread {
         }
 
         try {
-            fileThread.join();
-        } catch (InterruptedException e) {
+            final RandomAccessFile file = new RandomAccessFile(filename,"rw");
+            final FileChannel channel = file.getChannel();
+            int count = 0;
+
+            while(count!=numPeers) //once chunks written to file = number of chunks requested stop, might change this depending on drop file implementation
+            {
+                byte[] chunk = queue.take(); // chunk has format "bytestart|message" ex) "0this is file data"
+                byte[] bytestart = Arrays.copyOfRange(chunk,0,4); //extracts byte start position
+                byte[] payload = Arrays.copyOfRange(chunk,4,chunk.length); //extracts message
+                int position = ByteBuffer.wrap(bytestart).getInt(); //convert byte to int
+                channel.position(position); //specify position to write to.
+                channel.write(ByteBuffer.wrap(payload,0,payload.length)); //write message to position
+                count++;
+            }
+            file.close();
+            channel.close();
+        }
+        catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
