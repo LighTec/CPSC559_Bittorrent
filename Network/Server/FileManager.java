@@ -46,31 +46,9 @@ public class FileManager {
     }
 
     /**
-     * Loads a config of files & their hashes from a config file, so files hashes and locations don't have to be recalculated and readded after program start
-     *
-     * @param configPath
-     * @return
-     */
-    public boolean loadConfig(String configPath) {
-        //TODO create ability to load filepaths from a config file
-        return false;
-    }
-
-    /**
-     * Saves a config of files & their hashes from a config file, so files hashes and locations don't have to be recalculated and readded after program start
-     *
-     * @param configPath
-     * @return
-     */
-    public boolean saveConfig(String configPath) {
-        // TODO allow saving of file locations & their hashes (so we do not have to recompute)
-        return false;
-    }
-
-    /**
      * Given a hash of a file, remove it from the local list of available files
      *
-     * @param name
+     * @param name name of file as byte array
      */
     public void removeFile(byte[] name) {
         String torem = hasher.hashBytesToString(name);
@@ -84,7 +62,7 @@ public class FileManager {
     /**
      * Add a new file to the local list of available files
      *
-     * @param filePath
+     * @param filePath filepath on local storage media
      * @return name of file if successful, false otherwise
      */
     public String addFile(String filePath) {
@@ -103,7 +81,7 @@ public class FileManager {
     /**
      * Returns the names of files available locally.
      *
-     * @return
+     * @return string array, each element contains a filename available locally
      */
     public String[] getFileNameList() {
         Set<String> keyset = this.mapper.keySet();
@@ -118,7 +96,7 @@ public class FileManager {
     /**
      * Returns the filepaths of files available locally.
      *
-     * @return
+     * @return string array, each element contains a filepath available locally
      */
     public String[] getFilePathList() {
         String[] keys = this.getFileNameList();
@@ -132,8 +110,8 @@ public class FileManager {
     /**
      * Get the filesize for a locally stored file.
      *
-     * @param filename
-     * @return
+     * @param filename filename to get the size of
+     * @return size of file, in bytes
      */
     public long getFilesize(String filename) {
         String fp = this.mapper.get(filename);

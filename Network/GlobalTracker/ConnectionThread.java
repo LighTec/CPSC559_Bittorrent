@@ -24,12 +24,14 @@ public class ConnectionThread extends Thread {
         try {
             ServerSocket socket = new ServerSocket(1962, 5);
             while (this.running) {
+                // wait for incoming connection
                 Socket client = socket.accept();
-
+                // set up printwriter for socket I/O
                 PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
+                // parse incoming lessage
                 String msg = in.readLine();
+                // unless asking to connect, do nothing
                 if (msg.equals("connect")) {
                     StringBuilder s = new StringBuilder();
                     String[] nodes = this.gt.getRandomNodes(3);
@@ -39,9 +41,10 @@ public class ConnectionThread extends Thread {
                             s.append(",");
                         }
                     }
+                    // send list of connected nodes
                     out.println(s.toString());
-
                     String address = client.getInetAddress().getHostAddress();
+                    // add new node to network list
                     this.gt.addNode(address);
                     System.out.println(">> Added " + address);
                 }
@@ -55,6 +58,9 @@ public class ConnectionThread extends Thread {
         }
     }
 
+    /**
+     * Terminate the connection thread.
+     */
     void finish() {
         this.running = false;
     }

@@ -150,38 +150,43 @@ public class UDPClient extends Thread {
     }
 
     /**
-     * Get all
-     * @param addr
-     * @return
-     * @throws IOException
+     * Request data from a peer if they have head tracker data for a specific file.
+     * @param addr address to get peer data for
+     * @return returned data from peer
+     * @throws IOException if peer does not reply or other socket errors
      */
     public ArrayList<byte[]> getPeerData(String addr) throws IOException {
         InetAddress ip = InetAddress.getByName(addr);
         DatagramSocket udpSocket = new DatagramSocket(6090);
         ArrayList<byte[]> peerData = new ArrayList<byte[]>();
+        // generate packet to send
         byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
         byte[] cmd = ByteBuffer.allocate(4).putInt(5).array();
         byte[] fname = ByteBuffer.allocate(32).put(filename.getBytes()).array();
         byte[] message = new byte[36];
+        // put in message array
         System.arraycopy(cmd, 0, message, 0, cmd.length);
         System.arraycopy(fname, 0, message, cmd.length, fname.length);
+        // send message
         DatagramPacket packet = new DatagramPacket(message, message.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
         packet = new DatagramPacket(bytes, bytes.length);
-
+        // wait a while to receive a reply
         try {
             udpSocket.setSoTimeout(1500);
             udpSocket.receive(packet);
         } catch (SocketTimeoutException e) {
             udpSocket.close();
-            return new ArrayList<byte[]>();
+            return new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // parse returned message
         byte[] nout = new byte[packet.getLength()];
         System.arraycopy(bytes, 0, nout, 0, nout.length);
 
+        // parse peerdata to the arraylist
         byte[] filesize = Arrays.copyOfRange(nout, 4, 8);
         peerData.add(filesize);
         byte[] filehash = Arrays.copyOfRange(nout, 8, 24);

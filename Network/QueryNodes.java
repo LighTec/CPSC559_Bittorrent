@@ -17,17 +17,28 @@ public class QueryNodes {
     private ArrayList<byte[]> peerList = new ArrayList<byte[]>();
     private ArrayList<byte[]> notFound = new ArrayList<byte[]>();
 
+    /**
+     * Initialize a query to later call fileQuery() with.
+     * @param message message to query with
+     * @param nodelist list of nodes to send query to
+     */
     public QueryNodes(byte[] message, ArrayList<String> nodelist) {
         this.message = message;
         this.nodelist = nodelist;
     }
 
+    /**
+     * Start a filequery with values defined in object constructor.
+     * @return Response from query
+     * @throws IOException Network I/O exceptions
+     */
     public byte[] fileQuery() throws IOException {
 //        System.out.println("querying nodes...");
         ArrayList<FileQuery> threadList = new ArrayList<>();
         ArrayList<String> notQueried = new ArrayList<>();
         int count = nodelist.size();
 
+        // format node list into addresses and add to query list if they haven't been queried
         for (String s : nodelist) {
             InetAddress addr = InetAddress.getByName(s);
             if (!addr.isAnyLocalAddress()) {
@@ -46,6 +57,7 @@ public class QueryNodes {
                 count--;
         }
 
+        // send queries to all nodes not already queried
         for (int i = 0; i < notQueried.size(); i++) {
             InetAddress addr = InetAddress.getByName(notQueried.get(i));
             boolean tryagain = true;
@@ -61,6 +73,7 @@ public class QueryNodes {
             }
         }
 
+        // wait for all queries to return
         for (FileQuery fileQuery : threadList) {
             if (fileQuery.isAlive()) {
                 try {
@@ -83,6 +96,10 @@ public class QueryNodes {
         //start threads, join, processQuery add to arraylist, check, return
     }
 
+    /**
+     * Process a returned query
+     * @param b Node response from query
+     */
     public synchronized void processQuery(byte[] b) {
         byte[] command = Arrays.copyOfRange(b, 0, 4);
         int cmd = ByteBuffer.wrap(command).getInt();
@@ -94,6 +111,12 @@ public class QueryNodes {
             notFound.add(b);
     }
 
+    /**
+     * Check if a node has already been queried.
+     * @param message message to send
+     * @param node Ip address of node as a byte array
+     * @return True if node has been queried already, False otherwise
+     */
     public boolean isQueried(byte[] message, byte[] node) {
         for (int i = 4; i < message.length; i += 4) {
             byte[] bytes = new byte[4];
@@ -104,6 +127,12 @@ public class QueryNodes {
         return false;
     }
 
+    /**
+     * Append the IP of the local machine to the message received so we do not get additional queries
+     * @param message original message
+     * @param bytes IP address of this node
+     * @return new message to query with
+     */
     public byte[] addip(byte[] message, byte[] bytes) {
         byte[] out = new byte[message.length + bytes.length];
         System.arraycopy(message, 0, out, 0, message.length);

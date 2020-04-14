@@ -284,10 +284,12 @@ public class UDPServer extends Thread {
      * @throws NoSuchAlgorithmException Failure hashing data
      */
     private byte[] generateFilePacket(byte[] name, int start, int end, int chunknum) throws IOException, NoSuchAlgorithmException {
+        // calculate chunk start and end indices
         int chunkstartindex = start + (chunknum * (NetworkStatics.FILECHUNK_SIZE));
         int chunkendindex = chunkstartindex + NetworkStatics.FILECHUNK_SIZE;
         int maxchunklen = chunkendindex - chunkstartindex + 1;
 
+        // access file & read selection
         RandomAccessFile toget = this.fm.getFile(name);
         toget.seek(chunkstartindex);
         byte[] filedata = new byte[maxchunklen];

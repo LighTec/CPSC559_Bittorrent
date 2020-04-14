@@ -14,6 +14,11 @@ import java.util.Arrays;
 
 public class Leadership {
 
+    /**
+     * Given an arraylist of peers, we elect a new leader.
+     * @param peerList list of peers to get a new leader from
+     * @return leader chosen
+     */
     public static String election(ArrayList<String> peerList) {
 //        for (int i = 0; i < peerList.size(); i++) {
 //            System.out.println("election " + peerList);

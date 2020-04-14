@@ -27,14 +27,20 @@ public class CommandHandler {
      * Given a command number, get the length of data that should follow the command. -2 means invalid command,
      * -1 means variable length command
      *
-     * @param cmd
-     * @return
+     * @param cmd command
+     * @return expected length of command
      */
     public int getCmdLen(int cmd) {
         return this.cmdlen[cmd];
     }
 
 
+    /**
+     * Init the command length array, used in tokenizing and generating packets below.
+     * -1 denotes variable length,
+     * -3 denotes do not include length,
+     * any positive number indicates a static length.
+     */
     private void initcmdlen() {
         this.cmdlen = new int[256];
         Arrays.fill(this.cmdlen, -2);
@@ -81,6 +87,12 @@ public class CommandHandler {
         return parsed;
     }
 
+    /**
+     * Generate the header for a command
+     * @param cmd command number for packet
+     * @param data data to put in packet
+     * @return packet to send
+     */
     public byte[] generatePacket(int cmd, byte[] data) {
         int len = this.getCmdLen(cmd);
         byte[] cmdbytes = NetworkStatics.intToByteArray(cmd);
@@ -106,6 +118,12 @@ public class CommandHandler {
         return output;
     }
 
+    /**
+     * Append data to the end of an already generated packet.
+     * @param original previous packet
+     * @param append data to append
+     * @return new packet with data appended & length recalculated
+     */
     public byte[] appendToGeneratedPacket(byte[] original, byte[] append) {
         int len = NetworkStatics.byteArrayToInt(original, 4);
         int newlen = len + append.length;
