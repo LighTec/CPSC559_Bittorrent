@@ -160,7 +160,7 @@ public class UDPClient extends Thread {
 //        System.out.println("sent about to receive");
         udpSocket.receive(recvpacket);
 //        System.out.println("election receive");
-        byte[] nout = new byte[packet.getLength()];
+        byte[] nout = new byte[4];
         System.arraycopy(bytes, 0, nout, 0, nout.length);
         udpSocket.close();
         return nout;
