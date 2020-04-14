@@ -34,6 +34,7 @@ public class Receiver extends Thread {
             byte[] bytes = new byte[NetworkStatics.MAX_PACKET_SIZE];
             DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
             try {
+                // wait for packet, or 1 second. If a packet is received, process it via Slave.processPacket().
                 socket.receive(packet);
                 byte[] nout = new byte[packet.getLength()];
                 System.arraycopy(bytes, 0, nout, 0, nout.length);
@@ -42,12 +43,15 @@ public class Receiver extends Thread {
             } catch (SocketTimeoutException e) {
 //				System.err.println("socket timeout waiting for packet in receiver...");
                 break;
-            } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
+            } catch (IOException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    /**
+     * Shut down this thread, rather than wait for the timeout
+     */
     public void shutdown() {
         this.shutdown = true;
     }

@@ -10,9 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,10 +23,9 @@ public class Slave extends Thread {
     private int numPackets;
     private String filename;
     private InetAddress addr;
-    protected BlockingQueue<byte[]> queue = null;
+    protected BlockingQueue<byte[]> queue;
     private MD5hash util = new MD5hash();
     private Map map = new ConcurrentHashMap<Integer, byte[]>();
-    private int packetsize;
 
     public Slave(final InetAddress addr, final int port, int bytestart, int bytefinish, final String filename, BlockingQueue<byte[]> queue) throws IOException {
         this.addr = addr;
@@ -38,31 +35,33 @@ public class Slave extends Thread {
         this.udpSocket = new DatagramSocket(port);
         this.queue = queue;
         this.numPackets = ((bytefinish - bytestart) / (NetworkStatics.FILECHUNK_SIZE)) + 1;
-        this.packetsize = NetworkStatics.FILECHUNK_SIZE;
 //		System.out.println("requesting range start index of " + this.bytestart + " and end index of " + this.bytefinish);
 //		System.out.println("packet count: " + this.numPackets);
     }
 
     public void run() {
+        // create request for the range of data
         byte[] out = prepareRange(bytestart, bytefinish);
 //        NetworkStatics.printPacket(out, "CMD 10 Request");
+        // create receiver to get data
         Receiver receiveThread = new Receiver(this, udpSocket);
         receiveThread.start(); //start receiver thread
         CommandHandler handl = new CommandHandler();
+        // send request
         DatagramPacket dp = new DatagramPacket(out, out.length, addr, NetworkStatics.SERVER_CONTROL_RECEIVE); //init packet and bind addr,port
         try {
-            udpSocket.send(dp); //sent message/packet
+            udpSocket.send(dp);
 //			System.out.println("request sent...");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        // wait a while so the node we request from can process our request and begin sending file data
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        // shut down the receiver
         if (receiveThread.isAlive()) {
             receiveThread.shutdown();
             try {
@@ -72,7 +71,7 @@ public class Slave extends Thread {
                 e.printStackTrace();
             }
         }
-//		System.out.println("receivethread joined.");
+        // request any file chunks missing until we get them via command 12
         while (isMissing()) {
 //			System.out.println("packets missing, re-requesting...");
             Receiver rangeThread = new Receiver(this, udpSocket);
@@ -115,7 +114,12 @@ public class Slave extends Thread {
 
     }
 
-    public void processPacket(byte[] bytes) throws InterruptedException, NoSuchAlgorithmException {
+    /**
+     * Process a received packet with file data, and add to the hashmap of received data if its internal hash matches
+     * @param bytes input bytes received from another node
+     * @throws NoSuchAlgorithmException if md5 hashing algorithm is unavailable
+     */
+    public void processPacket(byte[] bytes) throws NoSuchAlgorithmException {
         //NetworkStatics.printPacket(bytes, "PACKET TO PROCESS");
 //		System.out.println("processing packet of len " + bytes.length);
         byte[] seqbyte = Arrays.copyOfRange(bytes, 8, 12);
@@ -127,8 +131,12 @@ public class Slave extends Thread {
             this.map.put(seqnum, message);
     }
 
+    /**
+     * Create a request for a specific chunk
+     * @return byte array with request encoded
+     */
     public byte[] createChunk() {
-        byte[] out = new byte[bytefinish - bytestart + 5]; // CHECK LATER
+        byte[] out = new byte[bytefinish - bytestart + 5];
         byte[] start = ByteBuffer.allocate(4).putInt(bytestart).array();
         System.arraycopy(start, 0, out, 0, start.length);
         int index = 4;
@@ -142,6 +150,10 @@ public class Slave extends Thread {
         return out;
     }
 
+    /**
+     * Check if any specific file chunks are missing
+     * @return True if any file chunks are missing, False otherwise
+     */
     public boolean isMissing() {
         for (int i = 0; i < numPackets; i++) {
             if (map.get(i) == null)
@@ -150,6 +162,12 @@ public class Slave extends Thread {
         return false;
     }
 
+    /**
+     * Generate a request for UDPServer to send a specific range of a file.
+     * @param start
+     * @param finish
+     * @return
+     */
     public byte[] prepareRange(int start, int finish) {
         int commandnumber = 10;
         byte[] cmd = ByteBuffer.allocate(4).putInt(commandnumber).array();

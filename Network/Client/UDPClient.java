@@ -23,36 +23,8 @@ public class UDPClient extends Thread {
         this.n = n;
     }
 
-//    public void run() {
-//
-//        InetAddress inetAddress = null;
-//        try {
-//            inetAddress = InetAddress.getByName("127.0.0.1");
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        }
-//        String url = inetAddress.getHostName();
-//        ArrayList<byte[]> tempnodelist = new ArrayList<>();
-//        byte[] blah = inetAddress.getAddress();
-//        System.out.println(blah.length);
-//        tempnodelist.add(blah);
-//
-//        byte[] hash = null;
-//        try {
-//            hash = hasher.getHashFile(Node.TESTFILE);
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        String mike = "127.0.0.1";
-//
-//        Master master = new Master(tempnodelist, filename, 201164, hash, this.n, mike.getBytes());
-//        master.start();
-//    }
-
     public void run() {
+        // get all nodes in the network
         String[] nodeList = findNodes.getNodes();
 //        System.out.println(Arrays.toString(nodeList));
         ArrayList<String> nlist = new ArrayList<>();
@@ -71,13 +43,16 @@ public class UDPClient extends Thread {
         System.arraycopy(cmd, 0, message, 0, cmd.length);
         System.arraycopy(fname, 0, message, cmd.length, fname.length);
         System.arraycopy(myIP, 0, message, 36, myIP.length);
+        // query nodes for a file, specified in fname & class constructor
         QueryNodes qNodes = new QueryNodes(message, nlist);
         byte[] queryData = null;
+        // attempt to query all nodes about a file
         try {
             queryData = qNodes.fileQuery();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // get the returned command, which lets the UDPClient know if the file was found
         int queryCmd = NetworkStatics.byteArrayToInt(queryData);
 //        System.out.println("QUERY CMD " + queryCmd);
         ArrayList<byte[]> peerList = new ArrayList<>();
@@ -85,6 +60,7 @@ public class UDPClient extends Thread {
             System.out.println("File Not Found");
         } else if (queryCmd == 45) //direct peer list is head cmd4byte:filesize4byte:hash16pyte:youripbytes:ips
         {
+            // if the file was found, we can now attempt to download it
 //            NetworkStatics.printPacket(queryData, "QUERY DATA CMD 45");
             int filesize = ByteBuffer.wrap(Arrays.copyOfRange(queryData, 4, 8)).getInt();
             byte[] hash = Arrays.copyOfRange(queryData, 8, 24);
@@ -93,6 +69,7 @@ public class UDPClient extends Thread {
                 byte[] b = Arrays.copyOfRange(queryData, i, i + 4);
                 peerList.add(b);
             }
+            // create a master to download file
             Master master = new Master(peerList, this.filename, filesize, hash, this.n, hip);
             master.start();
         } else {
@@ -143,6 +120,12 @@ public class UDPClient extends Thread {
         }
     }
 
+    /**
+     * Start an election to find a new head tracker for a file.
+     * @param addr address of node who requested election
+     * @return winning node
+     * @throws IOException for socket-based errors
+     */
     public byte[] startElection(String addr) throws IOException {
         InetAddress ip = InetAddress.getByName(addr);
         DatagramSocket udpSocket = new DatagramSocket(6091);
@@ -166,6 +149,12 @@ public class UDPClient extends Thread {
         return nout;
     }
 
+    /**
+     * Get all
+     * @param addr
+     * @return
+     * @throws IOException
+     */
     public ArrayList<byte[]> getPeerData(String addr) throws IOException {
         InetAddress ip = InetAddress.getByName(addr);
         DatagramSocket udpSocket = new DatagramSocket(6090);
