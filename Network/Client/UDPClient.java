@@ -178,6 +178,7 @@ public class UDPClient extends Thread {
             udpSocket.setSoTimeout(1500);
             udpSocket.receive(packet);
         } catch (SocketTimeoutException e) {
+            udpSocket.close();
             return null;
         } catch (IOException e) {
             e.printStackTrace();
