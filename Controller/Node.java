@@ -12,14 +12,12 @@ import Network.Tracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Node {
 
-    public final static boolean LOCAL_ONLY = true;
+    public final static boolean LOCAL_ONLY = false;
 
     private FileManager fm;
     private UDPServer server;
