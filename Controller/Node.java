@@ -25,8 +25,6 @@ public class Node {
     private ArrayList<Tracker> trackers;
     private String ip;
 
-    public final static String TESTFILE = ".\\TestFiles\\413.pdf"; // DELETE ME
-
     Node() {
         // initialize filemanager, start UDP server, create empty arraylist of trackers
         this.fm = new FileManager();
