@@ -147,6 +147,7 @@ public class Master extends Thread {
         byte[] out = handl.generatePacket(20, fname);
         DatagramPacket packet = new DatagramPacket(out, out.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
+        udpSocket.close();
 //        NetworkStatics.printPacket(out, "TRACKER READY TO SEED REQ");
     }
 
