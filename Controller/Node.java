@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Node {
 
@@ -24,7 +25,7 @@ public class Node {
     private ArrayList<Tracker> trackers;
     private String ip;
 
-    public final static String TESTFILE = ".\\TestFiles\\alphabet.txt"; // DELETE ME
+    public final static String TESTFILE = ".\\TestFiles\\413.pdf"; // DELETE ME
 
     Node() {
         // initialize filemanager, start UDP server, create empty arraylist of trackers
@@ -34,10 +35,10 @@ public class Node {
         this.trackers = new ArrayList<>();
 
         // if running in LAN only mode, get local address. Otherwise, get WAN address.
-        if(LOCAL_ONLY){
+        if (LOCAL_ONLY) {
             //this.ip = InetAddress.getLocalHost().getHostAddress();
             this.ip = "192.168.62.2";       /// MANUALLY EDIT ME
-        }else{
+        } else {
             try {
                 URL myIP = new URL("http://checkip.amazonaws.com");
                 BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -47,11 +48,12 @@ public class Node {
                 e.printStackTrace();
             }
         }
-
+        new NodeList().getNodes();
     }
 
     /**
      * Get IP address of this machine, as other peers see it.
+     *
      * @return
      */
     public String getIP() {
@@ -60,6 +62,7 @@ public class Node {
 
     /**
      * Add a local file to the node to make it available.
+     *
      * @param filename
      * @return
      */
@@ -112,6 +115,7 @@ public class Node {
 
     /**
      * Get the current head tracker for a filename.
+     *
      * @param filename
      * @return
      */
@@ -127,6 +131,7 @@ public class Node {
 
     /**
      * Update the lead tracker for a filename, in the local tracker list.
+     *
      * @param filename
      * @param leader
      */
@@ -140,6 +145,7 @@ public class Node {
 
     /**
      * Add a peer to the local tracker list, for a specific filename.
+     *
      * @param filename
      * @param peer
      */
@@ -154,6 +160,7 @@ public class Node {
 
     /**
      * Delete a peer from the local tracker list, for a specfic filename.
+     *
      * @param filename
      * @param peer
      */
@@ -167,6 +174,7 @@ public class Node {
 
     /**
      * Get the peer list for a filename from the local tracker.
+     *
      * @param filename
      * @return
      */
@@ -181,6 +189,7 @@ public class Node {
 
     /**
      * Start the UDPClient to send requests to other nodes, and receive file data.
+     *
      * @param filename
      */
     public void startClient(String filename) {
@@ -189,6 +198,7 @@ public class Node {
 
     /**
      * Check if this Node has a tracker for the specified file. If it does not, then the file is not "owned" by anybody.
+     *
      * @param filename
      * @return
      */
@@ -203,6 +213,7 @@ public class Node {
 
     /**
      * Add a new tracker to the list, used when a new file is added locally.
+     *
      * @param tracker
      */
     public void addTracker(Tracker tracker) {
@@ -211,6 +222,7 @@ public class Node {
 
     /**
      * Return the FileManager, which is used to access the physical files on disk.
+     *
      * @return
      */
     public FileManager getFileManager() {
@@ -219,83 +231,43 @@ public class Node {
 
     public static void main(String[] args) throws Exception {
         HeartbeatThread.init();
-        CommandHandler cm = new CommandHandler();
         Node n = new Node();
-//        new NodeList().getNodes();
-//        String file = n.addFile(TESTFILE);
-//        System.out.println(file);
-//        n.addFile("./TestFiles/413.pdf");
-        n.startClient("alphabet.txt");
 
-        /* DELETE ONCE DONE*/
-//        ArrayList<String> peerList = new ArrayList<>();
-//        peerList.add("69.420.96");
-//        peerList.add("96.420.69");
-//        peerList.add("123");
-//        peerList.add("123313231");
-//        peerList.add("2131231241");
-//        peerList.add("213123124132131");
-//        peerList.add("21312312413123213123142314");
-//        String fileName = "alphabet.txt";
-//        Tracker t = new Tracker(peerList, fileName, "69.420.96");
-//        n.addTracker(t);
-//        DatagramSocket sendsocket = new DatagramSocket();
-//
-//        byte[] fileByte = fileName.getBytes();
-//        System.out.println("byte " + Arrays.toString(fileByte));
-//        byte[] cmd = cm.generatePacket(24, fileByte);
-//        DatagramPacket outPacket = new DatagramPacket(cmd, cmd.length, InetAddress.getByName("localhost"), NetworkStatics.SERVER_CONTROL_RECEIVE);
-//        sendsocket.send(outPacket);
-
-        /*
         Scanner myObj = new Scanner(System.in);
-
         String input;
         while (true) {
             System.out.println("1: Download a file");
             System.out.println("2: Upload a file");
-            System.out.println("3 Dubugging mode");
-            System.out.println("4: Exit");
-
-            System.out.print("Enter input here: ");
+            System.out.println("3: Exit");
+            System.out.print("Enter you choice: ");
             input = myObj.nextLine().trim();
-            //For downloading
-            if (input.equals("1")) {
-                System.out.println("What file do you want to download?");
-                System.out.print("Enter file here: (include the type file of i.e. .txt, .zip)");
-                input = myObj.nextLine().trim();
-                n.startClient(input);
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException i) {
-                    i.printStackTrace();
-                }
 
-            }
-            // For uploading file
-            else if (input.equals("2")) {
-                System.out.println("What file do you want to upload?");
-                System.out.print("Enter file here including the directory: (for example: ./TestFiles/alphabet.txt)");
-                input = myObj.nextLine().trim();
-                String hash = n.addFile(input);
-                System.out.println("Added a file with hash: " + hash);
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException i) {
-                    i.printStackTrace();
-                }
-            }
-            // For debugging
-            else if (input.equals("3")) {
-                System.out.println("Debugging mode....");
-                // W.I.P.
-            }
-            //Exiting
-            else if (input.equals("4")) {
-                System.out.println("Exiting.....");
-                break;
+            switch (input) {
+                case "1": // For downloading
+                    System.out.println("What file do you want to download?");
+                    System.out.print("Enter file name (include the type file of i.e. .txt, .zip): ");
+                    input = myObj.nextLine().trim();
+                    if (n.fileOwned(input)) {
+                        System.out.println("You already have this file");
+                    } else {
+                        n.startClient(input);
+                        System.out.println("Downloading.....");
+                        Thread.sleep(1000);
+                        System.out.println("Check your the folder where you have these files and see the downloaded file");
+                        Thread.sleep(1000);
+                    }
+                    break;
+                case "2": // For uploading file
+                    System.out.println("What file do you want to upload?");
+                    System.out.print("Enter file path including the directory (for example: .\\TestFiles\\alphabet.txt): ");
+                    input = myObj.nextLine().trim();
+                    String name = n.addFile(input);
+                    System.out.println("Your file can now be seeded by others as " + name);
+                    break;
+                case "3": // Exiting
+                    System.out.println("Exiting.....");
+                    System.exit(0);
             }
         }
-        */
     }
 }
