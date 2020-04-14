@@ -219,10 +219,10 @@ public class Node {
             // For uploading file
             else if (input.equals("2")) {
                 System.out.println("What file do you want to upload?");
-                System.out.print("Enter file here including the directory: (for example: ./TestFiles/alphabet.txt)");
+                System.out.print("Enter file here including the directory: (for example: .\\TestFiles\\alphabet.txt)");
                 input = myObj.nextLine().trim();
 
-                n.addFile(input);
+              //  n.addFile(input);
                 System.out.println("Your file can now be seeded by others");
                 Thread.sleep(1000);
                 continue;
@@ -236,6 +236,7 @@ public class Node {
             //Exiting
             else if (input.equals("3")) {
                 System.out.println("Exiting.....");
+                System.exit(0);
                 break;
             }
         }
