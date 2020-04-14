@@ -237,9 +237,9 @@ public class UDPServer extends Thread {
 
 //                        System.out.println("PEER LIST FOR ELECTION");
 //                        System.out.println("size: " + peerList.size());
-                        for (int i = 0; i < peerList.size(); i++) {
-                            System.out.println(peerList.get(i));
-                        }
+//                        for (int i = 0; i < peerList.size(); i++) {
+//                            System.out.println(peerList.get(i));
+//                        }
 //                        System.out.println("PEER LIST END");
 
                         String newLeader = Leadership.election(peerList);
