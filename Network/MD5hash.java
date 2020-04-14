@@ -12,8 +12,7 @@ import java.util.Arrays;
 
 public class MD5hash {
 
-    public boolean compareHash(byte[] hash, byte[] hash2)
-    {
+    public boolean compareHash(byte[] hash, byte[] hash2) {
         return Arrays.equals(hash, hash2);
     }
 
@@ -26,21 +25,19 @@ public class MD5hash {
         return hashBytes(b);
     }
 
-    public byte[] hashBytes(byte[] b) throws NoSuchAlgorithmException
-    {
+    public byte[] hashBytes(byte[] b) throws NoSuchAlgorithmException {
         byte[] hash = MessageDigest.getInstance("MD5").digest(b);
         return hash;
     }
 
-    public void printHash(byte[] hash)
-    {
+    public void printHash(byte[] hash) {
         System.out.println(this.hashBytesToString(hash));
     }
 
-    public String hashBytesToString(byte[] hash){
-        BigInteger num = new BigInteger(1,hash);
+    public String hashBytesToString(byte[] hash) {
+        BigInteger num = new BigInteger(1, hash);
         String hashout = num.toString(16);
-        while (hashout.length()<32)
+        while (hashout.length() < 32)
             hashout += "0";
         return hashout;
     }

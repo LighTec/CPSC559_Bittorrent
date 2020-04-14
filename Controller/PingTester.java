@@ -23,7 +23,7 @@ public class PingTester {
         CommandHandler h = new CommandHandler();
         byte[] out = h.generatePacket(3, helloworld);
 
-        DatagramPacket packet = new DatagramPacket(out,0,out.length, InetAddress.getByName(networkToTest), port);
+        DatagramPacket packet = new DatagramPacket(out, 0, out.length, InetAddress.getByName(networkToTest), port);
         DatagramSocket sock = new DatagramSocket();
         sock.send(packet);
     }

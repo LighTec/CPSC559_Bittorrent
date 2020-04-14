@@ -41,16 +41,16 @@ public class UDPServer extends Thread {
             this.sendsocket = new DatagramSocket();
             this.fm = man;
         } catch (SocketException e) {
-            System.err.println("Failure initializing datagram socket on port " + this.port + ".");
+//            System.err.println("Failure initializing datagram socket on port " + this.port + ".");
             e.printStackTrace();
         }
-        System.out.println("Created UDP server on port " + this.port + ".");
+//        System.out.println("Created UDP server on port " + this.port + ".");
     }
 
     public void run() {
         this.running = true;
         while (this.running) {
-            System.out.println("waiting to receive packet...");
+//            System.out.println("waiting to receive packet...");
             this.recvpacket = new DatagramPacket(this.buf, this.buf.length);
             try {
                 this.recvsocket.receive(this.recvpacket); // wait until we get some data
@@ -60,30 +60,30 @@ public class UDPServer extends Thread {
                 byte[][] parsed = this.handler.tokenizepacket(trimmed); // tokenize data
                 int cmd = NetworkStatics.byteArrayToInt(parsed[0]); // parse first 4 bytes to integer
                 // Debug print statements
-                System.out.println("Command number: " + cmd);
-                System.out.println("Command length: " + parsed[1].length); // print data length
-                NetworkStatics.printPacket(trimmed, "PACKET");
+//                System.out.println("Command number: " + cmd);
+//                System.out.println("Command length: " + parsed[1].length); // print data length
+//                NetworkStatics.printPacket(trimmed, "PACKET");
 
                 switch (cmd) {
                     case 0:
-                        System.out.println("Request for heartbeat from " + this.recvpacket.getAddress() + ":" + this.recvpacket.getPort());
+//                        System.out.println("Request for heartbeat from " + this.recvpacket.getAddress() + ":" + this.recvpacket.getPort());
                         byte[] outCmd = this.handler.generatePacket(1, new byte[]{});
                         DatagramPacket outPacket = new DatagramPacket(outCmd, outCmd.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                         this.sendsocket.send(outPacket);
                         break;
                     case 1:
-                        System.out.println("Reply to heartbeat");
+//                        System.out.println("Reply to heartbeat");
 //                        System.out.println("Hearbeat request/reply sent to server port(" + NetworkStatics.SERVER_CONTROL_RECEIVE + "), should be sent to heartbeat port (" + NetworkStatics.HEARTBEAT_PORT + ").");
                         break;
                     case 3:
-                        NetworkStatics.printPacket(parsed[1], "TEST MESSAGE RECEIVED");
+//                        NetworkStatics.printPacket(parsed[1], "TEST MESSAGE RECEIVED");
                         break;
                     case 5:
                         // parsed[1] only contains filename, nothing else
                         String filename = new String(parsed[1], 0, 32).trim();
-                        System.out.println("5) Asking for '" + filename + "'");
+//                        System.out.println("5) Asking for '" + filename + "'");
                         int nodeMode = this.node.checkTrackers(filename);
-                        System.out.println("5) Case #" + nodeMode);
+//                        System.out.println("5) Case #" + nodeMode);
                         byte[] myIP = InetAddress.getByName(this.node.getIP()).getAddress();
                         switch (nodeMode) {
                             case 0: // I am the head tracker
@@ -106,7 +106,7 @@ public class UDPServer extends Thread {
                                 System.arraycopy(NetworkStatics.intToByteArray(45), 0, outData, 0, 4);
                                 System.arraycopy(fileLength, 0, outData, 4, 4);
                                 System.arraycopy(filehash, 0, outData, 8, 16);
-                                System.out.println("5) IP: " + InetAddress.getByAddress(myIP).getHostAddress());
+//                                System.out.println("5) IP: " + InetAddress.getByAddress(myIP).getHostAddress());
                                 System.arraycopy(myIP, 0, outData, 24, 4);
                                 System.arraycopy(peerlistbytes, 0, outData, 28, peerlistbytes.length);
 
@@ -139,12 +139,12 @@ public class UDPServer extends Thread {
                                 this.sendsocket.send(this.sendpacket);
                                 break;
                             default:
-                                System.err.println("this should not happen!");
+//                                System.err.println("this should not happen!");
                                 break;
                         }
                         break;
                     case 6:
-                        System.err.println("return seeder not implemented yet: " + getClass().getName());
+//                        System.err.println("return seeder not implemented yet: " + getClass().getName());
                         break;
                     case 10:
                         int startindex10 = NetworkStatics.byteArrayToInt(parsed[1], 0);
@@ -153,25 +153,25 @@ public class UDPServer extends Thread {
                         InetAddress requesterip = this.recvpacket.getAddress();
                         int length10 = endindex10 - startindex10 + 1;
 
-                        System.out.println("10) " + startindex10 + " to " + endindex10);
+//                        System.out.println("10) " + startindex10 + " to " + endindex10);
 
                         RandomAccessFile toget = this.fm.getFile(name10);
                         byte[] datatosend10 = new byte[length10];
                         toget.seek(startindex10);
                         int bytesread = toget.read(datatosend10, 0, length10);
                         toget.close();
-                        System.out.println("10) " + bytesread + " of " + length10);
+//                        System.out.println("10) " + bytesread + " of " + length10);
 
                         if (bytesread != length10) {
-                            System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
-                                    "Expected: " + length10 + "   Actual:" + bytesread + ".");
+//                            System.err.println("File bytes read is not equal to bytes requested to be read!\n" +
+//                                    "Expected: " + length10 + "   Actual:" + bytesread + ".");
                         }
 
                         // split the datatosend array so it can fit into 64k udp packets
                         byte[][] splitdata = NetworkStatics.chunkBytes(datatosend10, NetworkStatics.FILECHUNK_SIZE);
 
                         for (int i = 0; i < splitdata.length; i++) {
-                            System.out.println("Sending chunk " + i);
+//                            System.out.println("Sending chunk " + i);
                             if (!OMISSION_FAILURE_TEST || !(i == 0)) {
                                 byte[] output = new byte[splitdata[i].length + 20];
                                 System.arraycopy(NetworkStatics.intToByteArray(i), 0, output, 0, 4);
@@ -190,7 +190,7 @@ public class UDPServer extends Thread {
                         }
                         break;
                     case 11:
-                        System.err.println("File chunk sent to server. Discarding...");
+//                        System.err.println("File chunk sent to server. Discarding...");
                         break;
                     case 12:
                         int startindex12 = NetworkStatics.byteArrayToInt(parsed[1], 0);
@@ -198,7 +198,7 @@ public class UDPServer extends Thread {
                         int chunknumber12 = NetworkStatics.byteArrayToInt(parsed[1], 8);
                         byte[] name12 = Arrays.copyOfRange(parsed[1], 12, parsed[1].length);
                         InetAddress requesterip12 = this.recvpacket.getAddress();
-                        System.out.println("Command 12 called: chunk # " + chunknumber12);
+//                        System.out.println("Command 12 called: chunk # " + chunknumber12);
 
                         byte[] returnedData12 = this.generateFilePacket(name12, startindex12, endindex12, chunknumber12);
                         this.sendpacket = new DatagramPacket(returnedData12, returnedData12.length, requesterip12, this.recvpacket.getPort());
@@ -206,7 +206,7 @@ public class UDPServer extends Thread {
                         break;
                     case 20:
                         String fileName2 = new String(parsed[1]).trim();
-                        System.out.println("20) " + fileName2);
+//                        System.out.println("20) " + fileName2);
                         InetAddress newSeederIP = this.recvpacket.getAddress();
 
                         node.addPeerToTracker(fileName2, newSeederIP.getHostAddress());
@@ -235,18 +235,18 @@ public class UDPServer extends Thread {
                         node.deletePeerFromTracker(fileName, node.getLeader(fileName));
                         ArrayList<String> peerList = node.getPeerListFromTracker(fileName);
 
-                        System.out.println("PEER LIST FOR ELECTION");
-                        System.out.println("size: " + peerList.size());
+//                        System.out.println("PEER LIST FOR ELECTION");
+//                        System.out.println("size: " + peerList.size());
                         for (int i = 0; i < peerList.size(); i++) {
                             System.out.println(peerList.get(i));
                         }
-                        System.out.println("PEER LIST END");
+//                        System.out.println("PEER LIST END");
 
                         String newLeader = Leadership.election(peerList);
                         node.updateLeader(fileName, newLeader);
 
                         String fIP = fileName + "," + newLeader;
-                        System.out.println("String to send: " + fIP);
+//                        System.out.println("String to send: " + fIP);
 
                         byte[] tosend24 = this.handler.generatePacket(23, fIP.getBytes());
                         for (String peer : peerList) {
@@ -260,7 +260,7 @@ public class UDPServer extends Thread {
                         this.sendsocket.send(data24);
                         break;
                     case 25:
-                        System.out.println("25) ");
+//                        System.out.println("25) ");
 
                         String fileIP = new String(parsed[1]).trim();
                         String[] data = fileIP.split(",");
@@ -282,10 +282,10 @@ public class UDPServer extends Thread {
                         throw new IllegalStateException("Unexpected value in " + getClass().getName() + " switch statement: " + cmd);
                 }
             } catch (UnknownHostException e) {
-                System.out.println("Failed to connect to device...");
+//                System.out.println("Failed to connect to device...");
                 e.printStackTrace();
             } catch (IOException e) {
-                System.err.println("Failure reading data on port " + this.port + " in UDPServer.");
+//                System.err.println("Failure reading data on port " + this.port + " in UDPServer.");
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();

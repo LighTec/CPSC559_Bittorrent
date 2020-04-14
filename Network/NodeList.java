@@ -24,7 +24,7 @@ public class NodeList {
                 nodesString.append(temp);
             }
             nodes = nodesString.toString().split(",");
-            System.out.println(Arrays.toString(nodes));
+//            System.out.println(Arrays.toString(nodes));
         } catch (IOException e) {
             e.printStackTrace();
         }

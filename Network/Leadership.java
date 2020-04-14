@@ -15,9 +15,9 @@ import java.util.Arrays;
 public class Leadership {
 
     public static String election(ArrayList<String> peerList) {
-        for (int i = 0; i < peerList.size(); i++) {
-            System.out.println("election " + peerList);
-        }
+//        for (int i = 0; i < peerList.size(); i++) {
+//            System.out.println("election " + peerList);
+//        }
         String newLeader = "";
         Boolean running = false;
         int i = 0;
@@ -48,7 +48,7 @@ public class Leadership {
 
         for (i = 0; i < arr.length; i++) {
             if (p == arr[i]) {
-                System.out.println("The new leader is: " + peerList.get(i));
+//                System.out.println("The new leader is: " + peerList.get(i));
                 newLeader = peerList.get(i);
                 break;
             }

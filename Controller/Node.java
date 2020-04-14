@@ -75,7 +75,7 @@ public class Node {
             }
         }
         if (!duplicate) {
-            System.out.println("Create Tracker");
+//            System.out.println("Create Tracker");
             String fileName = NetworkStatics.getFilenameFromFilepath(filename);
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(this.ip);
@@ -153,7 +153,7 @@ public class Node {
         for (Tracker t : this.trackers) {
             if (t.getFileName().equals(filename)) {
                 t.addPeerData(peer);
-                System.out.println("Added " + peer + " to " + filename);
+//                System.out.println("Added " + peer + " to " + filename);
             }
         }
     }

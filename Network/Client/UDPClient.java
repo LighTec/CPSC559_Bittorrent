@@ -54,7 +54,7 @@ public class UDPClient extends Thread {
 
     public void run() {
         String[] nodeList = findNodes.getNodes();
-        System.out.println(Arrays.toString(nodeList));
+//        System.out.println(Arrays.toString(nodeList));
         ArrayList<String> nlist = new ArrayList<>();
 
         nlist.addAll(Arrays.asList(nodeList));
@@ -79,13 +79,13 @@ public class UDPClient extends Thread {
             e.printStackTrace();
         }
         int queryCmd = NetworkStatics.byteArrayToInt(queryData);
-        System.out.println("QUERY CMD " + queryCmd);
+//        System.out.println("QUERY CMD " + queryCmd);
         ArrayList<byte[]> peerList = new ArrayList<>();
-        if (queryCmd == 46) //file not found
+        if (queryCmd == 46) { //file not found
             System.out.println("File Not Found");
-        else if (queryCmd == 45) //direct peer list is head cmd4byte:filesize4byte:hash16pyte:youripbytes:ips
+        } else if (queryCmd == 45) //direct peer list is head cmd4byte:filesize4byte:hash16pyte:youripbytes:ips
         {
-            NetworkStatics.printPacket(queryData, "QUERY DATA CMD 45");
+//            NetworkStatics.printPacket(queryData, "QUERY DATA CMD 45");
             int filesize = ByteBuffer.wrap(Arrays.copyOfRange(queryData, 4, 8)).getInt();
             byte[] hash = Arrays.copyOfRange(queryData, 8, 24);
             byte[] hip = Arrays.copyOfRange(queryData, 24, 28);
@@ -95,9 +95,7 @@ public class UDPClient extends Thread {
             }
             Master master = new Master(peerList, this.filename, filesize, hash, this.n, hip);
             master.start();
-        }
-        else
-        {
+        } else {
             byte[] headip = Arrays.copyOfRange(queryData, 8, 12);
             String hd = null;
             try {
@@ -105,7 +103,7 @@ public class UDPClient extends Thread {
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
-            System.out.println(hd);
+//            System.out.println(hd);
             byte[] trackerip = Arrays.copyOfRange(queryData, 12, 16);
             String td = null;
             try {
@@ -113,7 +111,7 @@ public class UDPClient extends Thread {
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
-            System.out.println(td);
+//            System.out.println(td);
             ArrayList<byte[]> peerData = new ArrayList<byte[]>();
             try {
                 peerData = getPeerData(hd);
@@ -138,7 +136,7 @@ public class UDPClient extends Thread {
             for (int i = 0; i < plist.length; i += 4) {
                 byte[] b = Arrays.copyOfRange(plist, i, i + 4);
                 peerList.add(b);
-                NetworkStatics.printPacket(b, "PEER ADDED");
+//                NetworkStatics.printPacket(b, "PEER ADDED");
             }
             Master master = new Master(peerList, this.filename, fiSize, fhash, this.n, headip);
             master.start();
@@ -159,9 +157,9 @@ public class UDPClient extends Thread {
         DatagramPacket packet = new DatagramPacket(out, out.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
         DatagramPacket recvpacket = new DatagramPacket(bytes, bytes.length);
-        System.out.println("sent about to receive");
+//        System.out.println("sent about to receive");
         udpSocket.receive(recvpacket);
-        System.out.println("election receive");
+//        System.out.println("election receive");
         byte[] nout = new byte[packet.getLength()];
         System.arraycopy(bytes, 0, nout, 0, nout.length);
         udpSocket.close();
@@ -177,7 +175,7 @@ public class UDPClient extends Thread {
         byte[] fname = ByteBuffer.allocate(32).put(filename.getBytes()).array();
         byte[] message = new byte[36];
         System.arraycopy(cmd, 0, message, 0, cmd.length);
-        System.arraycopy(fname, 0, message, cmd.length,fname.length);
+        System.arraycopy(fname, 0, message, cmd.length, fname.length);
         DatagramPacket packet = new DatagramPacket(message, message.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
         packet = new DatagramPacket(bytes, bytes.length);
