@@ -185,7 +185,7 @@ public class UDPClient extends Thread {
             udpSocket.receive(packet);
         } catch (SocketTimeoutException e) {
             udpSocket.close();
-            return null;
+            return new ArrayList<byte[]>();
         } catch (IOException e) {
             e.printStackTrace();
         }
