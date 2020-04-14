@@ -12,7 +12,7 @@ public class NodeList {
     public String[] getNodes() {
         String[] nodes = new String[0];
         try {
-            Socket client = new Socket("localhost", 1962);
+            Socket client = new Socket("75.156.158.110", 1962);
 
             PrintWriter out = new PrintWriter(client.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));

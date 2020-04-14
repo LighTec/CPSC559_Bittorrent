@@ -1,7 +1,6 @@
 package Network;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -135,5 +134,29 @@ public class NetworkStatics {
             arrays[chunks - 1] = Arrays.copyOfRange(arrayToSplit, (chunks - 1) * chunkSize, (chunks - 1) * chunkSize + rest);
         }
         return arrays; // that's it
+    }
+
+    /**
+     * Return a socket available to bind to, within the range of application ports
+     * @return next port number available
+     * @throws SocketException if no port is available (max 50 ports)
+     */
+    public static int getNextAvailablePort() throws SocketException {
+        int port = 6051;
+        int highBound = 6100;
+        while(true){
+            try {
+                DatagramSocket sock = new DatagramSocket(port);
+                sock.close();
+                break;
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+            port++;
+            if(port > highBound){
+                throw new SocketException("Could not find port.");
+            }
+        }
+        return port;
     }
 }

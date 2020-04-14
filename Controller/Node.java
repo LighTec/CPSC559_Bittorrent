@@ -226,11 +226,11 @@ public class Node {
         HeartbeatThread.init();
         CommandHandler cm = new CommandHandler();
         Node n = new Node();
-        new NodeList().getNodes();
-        String file = n.addFile(TESTFILE);
-        System.out.println(file);
-        n.addFile("./TestFiles/413.pdf");
-//        n.startClient("413.pdf");
+//        new NodeList().getNodes();
+//        String file = n.addFile(TESTFILE);
+//        System.out.println(file);
+//        n.addFile("./TestFiles/413.pdf");
+        n.startClient("alphabet.txt");
 
         /* DELETE ONCE DONE*/
 //        ArrayList<String> peerList = new ArrayList<>();

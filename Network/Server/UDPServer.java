@@ -243,7 +243,10 @@ public class UDPServer extends Thread {
                         System.out.println("PEER LIST END");
 
                         String newLeader = Leadership.election(peerList);
+                        node.updateLeader(fileName, newLeader);
+
                         String fIP = fileName + "," + newLeader;
+                        System.out.println("String to send: " + fIP);
 
                         byte[] tosend24 = this.handler.generatePacket(23, fIP.getBytes());
                         for (String peer : peerList) {
@@ -252,7 +255,8 @@ public class UDPServer extends Thread {
                         }
                         InetAddress requesterIP24 = this.recvpacket.getAddress();
                         int requesterPort24 = this.recvpacket.getPort();
-                        DatagramPacket data24 = new DatagramPacket(tosend24, tosend24.length, requesterIP24, requesterPort24);
+                        byte[] addr = InetAddress.getByName(newLeader).getAddress();
+                        DatagramPacket data24 = new DatagramPacket(addr, addr.length, requesterIP24, requesterPort24);
                         this.sendsocket.send(data24);
                         break;
                     case 25:
