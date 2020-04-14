@@ -63,27 +63,22 @@ public class UDPServer extends Thread {
 //                System.out.println("Command length: " + parsed[1].length); // print data length
 //                NetworkStatics.printPacket(trimmed, "PACKET");
 
+                // based off command number, do an action.
                 switch (cmd) {
-                    case 0:
+                    case 0: // heartbeat
 //                        System.out.println("Request for heartbeat from " + this.recvpacket.getAddress() + ":" + this.recvpacket.getPort());
                         byte[] outCmd = this.handler.generatePacket(1, new byte[]{});
                         DatagramPacket outPacket = new DatagramPacket(outCmd, outCmd.length, this.recvpacket.getAddress(), this.recvpacket.getPort());
                         this.sendsocket.send(outPacket);
                         break;
-                    case 1:
-//                        System.out.println("Reply to heartbeat");
-//                        System.out.println("Hearbeat request/reply sent to server port(" + NetworkStatics.SERVER_CONTROL_RECEIVE + "), should be sent to heartbeat port (" + NetworkStatics.HEARTBEAT_PORT + ").");
-                        break;
-                    case 3:
-//                        NetworkStatics.printPacket(parsed[1], "TEST MESSAGE RECEIVED");
-                        break;
-                    case 5:
+                    case 5: // file query
                         // parsed[1] only contains filename, nothing else
                         String filename = new String(parsed[1], 0, 32).trim();
 //                        System.out.println("5) Asking for '" + filename + "'");
                         int nodeMode = this.node.checkTrackers(filename);
 //                        System.out.println("5) Case #" + nodeMode);
                         byte[] myIP = InetAddress.getByName(this.node.getIP()).getAddress();
+                        // return different data dependent on if I am the head tracker, tracker, non-tracker
                         switch (nodeMode) {
                             case 0: // I am the head tracker
                                 // send back filesize, hash, myIP, peerlist
@@ -142,10 +137,7 @@ public class UDPServer extends Thread {
                                 break;
                         }
                         break;
-                    case 6:
-//                        System.err.println("return seeder not implemented yet: " + getClass().getName());
-                        break;
-                    case 10:
+                    case 10: // file request
                         int startindex10 = NetworkStatics.byteArrayToInt(parsed[1], 0);
                         int endindex10 = NetworkStatics.byteArrayToInt(parsed[1], 4);
                         byte[] name10 = Arrays.copyOfRange(parsed[1], 8, parsed[1].length);
@@ -188,10 +180,7 @@ public class UDPServer extends Thread {
                             } // else "drop" the packet
                         }
                         break;
-                    case 11:
-//                        System.err.println("File chunk sent to server. Discarding...");
-                        break;
-                    case 12:
+                    case 12: // re-request file chunk
                         int startindex12 = NetworkStatics.byteArrayToInt(parsed[1], 0);
                         int endindex12 = NetworkStatics.byteArrayToInt(parsed[1], 4);
                         int chunknumber12 = NetworkStatics.byteArrayToInt(parsed[1], 8);
@@ -203,7 +192,7 @@ public class UDPServer extends Thread {
                         this.sendpacket = new DatagramPacket(returnedData12, returnedData12.length, requesterip12, this.recvpacket.getPort());
                         this.sendsocket.send(this.sendpacket);
                         break;
-                    case 20:
+                    case 20: // node ready to seed
                         String fileName2 = new String(parsed[1]).trim();
 //                        System.out.println("20) " + fileName2);
                         InetAddress newSeederIP = this.recvpacket.getAddress();
@@ -219,12 +208,12 @@ public class UDPServer extends Thread {
                             this.sendsocket.send(data);
                         }
                         break;
-                    case 23:
+                    case 23: // update head tracker for a file
                         String fileNameIP = new String(parsed[1]).trim();
                         String[] d = fileNameIP.split(",");
                         node.updateLeader(d[0], d[1]); //d[0] should be the file name and d[1] should be the ip of the leader
                         break;
-                    case 24:
+                    case 24: // call election for a file
                         String fileName = new String(parsed[1]).trim();
 
                         node.deletePeerFromTracker(fileName, node.getLeader(fileName));
@@ -254,7 +243,7 @@ public class UDPServer extends Thread {
                         DatagramPacket data24 = new DatagramPacket(addr, addr.length, requesterIP24, requesterPort24);
                         this.sendsocket.send(data24);
                         break;
-                    case 25:
+                    case 25: // add seeder for a file
 //                        System.out.println("25) ");
 
                         String fileIP = new String(parsed[1]).trim();
@@ -262,13 +251,14 @@ public class UDPServer extends Thread {
 
                         node.addPeerToTracker(data[0], data[1]);
                         break;
-                    case 26:
+                    case 26: // delete seeder for a file
                         String fileIP1 = new String(parsed[1]).trim();
                         String[] data1 = fileIP1.split(",");
 
                         node.deletePeerFromTracker(data1[0], data1[1]);
                         break;
                     default:
+                        // if an invalid command is sent, throw an exception.
                         throw new IllegalStateException("Unexpected value in " + getClass().getName() + " switch statement: " + cmd);
                 }
             } catch (UnknownHostException e) {
@@ -318,8 +308,12 @@ public class UDPServer extends Thread {
         return tosend;
     }
 
+    /**
+     * Terminate the UDP server.
+     */
     public void terminate() {
         this.running = false;
+        this.sendsocket.close();
     }
 
 }

@@ -9,6 +9,10 @@ import java.util.Arrays;
 
 public class NodeList {
 
+    /**
+     * Get all available nodes in the network. Used when connecting to the network
+     * @return String array of nodes, where each string is a IP address
+     */
     public String[] getNodes() {
         String[] nodes = new String[0];
         try {

@@ -1,8 +1,5 @@
 package Network.Client;
 
-import Network.NetworkStatics;
-
-import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.BlockingQueue;

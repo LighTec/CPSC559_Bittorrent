@@ -24,7 +24,7 @@ public class Master extends Thread {
     private int filesize;
     private byte[] filehash;
     private MD5hash util = new MD5hash();
-    BlockingQueue<byte[]> queue = new ArrayBlockingQueue(8);//change size
+    BlockingQueue<byte[]> queue = new ArrayBlockingQueue(8);
     private byte[] leader;
     private Node n;
 
@@ -47,7 +47,7 @@ public class Master extends Thread {
         //final Thread fileThread = new Thread(new FileThread(this.queue, this.filename, numPeers));
         //fileThread.start();
 
-        for (int i = 0; i < numPeers; i++) //cycle threw peer list assign to slave thread
+        for (int i = 0; i < numPeers; i++) //cycle through peer list & assign each to a slave thread
         {
             byte[] addr = this.peerdata.get(i);
             int start;
@@ -69,6 +69,7 @@ public class Master extends Thread {
                 }
             }
 
+            // try to create a Slave for a peer
             try {
                 InetAddress ip = InetAddress.getByAddress(addr);
 //                System.out.println(ip.getHostAddress());
@@ -79,6 +80,7 @@ public class Master extends Thread {
             }
         }
 
+        // wait for all slaves to finish
         for (Slave slave : threadList) {
             if (slave.isAlive()) {
                 try {
@@ -89,6 +91,7 @@ public class Master extends Thread {
             }
         }
 
+        // try to join file together from the queue
         try {
             final RandomAccessFile file = new RandomAccessFile(filename, "rw");
             final FileChannel channel = file.getChannel();
@@ -110,6 +113,8 @@ public class Master extends Thread {
             e.printStackTrace();
         }
 
+        // get hash of file & send that we are ready to seed if it equals the original hash retreieved
+        // from the head tracker
         try {
             byte[] filehash2 = util.getHashFile(this.filename);
             if (util.compareHash(this.filehash, filehash2)) {
@@ -130,6 +135,10 @@ public class Master extends Thread {
         }
     }
 
+    /**
+     * Send to the head tracker that this node is ready to seed for the file Master has downloaded.
+     * @throws IOException
+     */
     public void readyToSeed() throws IOException {
         InetAddress ip = InetAddress.getByAddress(leader);
         DatagramSocket udpSocket = new DatagramSocket(6092);
