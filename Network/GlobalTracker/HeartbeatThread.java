@@ -13,6 +13,7 @@ import java.util.Arrays;
 public class HeartbeatThread<T extends Pulsable> extends Thread {
 
     private static DatagramSocket socket;
+    public static boolean debug = false;
 
     private T gt;
     private boolean running;
@@ -48,12 +49,12 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
                 }
                 boolean alive = pulseNode(node);
                 if (!alive) {
-                    System.out.println(">> Removed node " + node);
+                    if (debug) System.out.println(">> Removed node " + node);
                     this.gt.deleteNode(node);
                 }
             }
             try {
-                System.out.println(">> Heartbeat sleeping");
+                if (debug) System.out.println(">> Heartbeat sleeping");
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -66,7 +67,7 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
     }
 
     private synchronized static boolean pulseNode(String node) {
-        System.out.println(">> Checking " + node);
+        if (debug) System.out.println(">> Checking " + node);
         for (int i = 1; i <= 5; i++) {
             try {
                 byte[] cmd = ByteBuffer.allocate(4).putInt(0).array();
@@ -79,11 +80,11 @@ public class HeartbeatThread<T extends Pulsable> extends Thread {
                 int inCmd = NetworkStatics.byteArrayToInt(Arrays.copyOfRange(inMsg, 0, 4));
 
                 if (inCmd == 1) {
-                    System.out.println("<< Alive " + node);
+                    if (debug) System.out.println("<< Alive " + node);
                     return true;
                 }
             } catch (IOException ioe) {
-                System.out.println(String.format("!! Timeout %d %s", i, node));
+                if (debug) System.out.println(String.format("!! Timeout %d %s", i, node));
             }
         }
         return false;

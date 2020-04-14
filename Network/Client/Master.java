@@ -37,11 +37,10 @@ public class Master extends Thread {
         this.n = n;
     }
 
-    public void run()
-    {
+    public void run() {
         ArrayList<Slave> threadList = new ArrayList<>(); // arraylist for tracking slave threads
         int numPeers = this.peerdata.size();
-        System.out.println("Peer count: " + numPeers);
+//        System.out.println("Peer count: " + numPeers);
         int remainder = this.filesize % numPeers;
         int size = this.filesize / numPeers;
         int x = 0;
@@ -72,7 +71,7 @@ public class Master extends Thread {
 
             try {
                 InetAddress ip = InetAddress.getByAddress(addr);
-                System.out.println(ip.getHostAddress());
+//                System.out.println(ip.getHostAddress());
                 final Slave slaveThread = new Slave(ip, i + 6070, start, end, this.filename, this.queue); //create slave thread with specified byte range and file
                 slaveThread.start(); // start current slave thread
                 threadList.add(slaveThread); // add current slave thread to thread list
@@ -91,31 +90,30 @@ public class Master extends Thread {
         }
 
         try {
-            final RandomAccessFile file = new RandomAccessFile(filename,"rw");
+            final RandomAccessFile file = new RandomAccessFile(filename, "rw");
             final FileChannel channel = file.getChannel();
             int count = 0;
 
-            while(count!=numPeers) //once chunks written to file = number of chunks requested stop, might change this depending on drop file implementation
+            while (count != numPeers) //once chunks written to file = number of chunks requested stop, might change this depending on drop file implementation
             {
                 byte[] chunk = queue.take(); // chunk has format "bytestart|message" ex) "0this is file data"
-                byte[] bytestart = Arrays.copyOfRange(chunk,0,4); //extracts byte start position
-                byte[] payload = Arrays.copyOfRange(chunk,4,chunk.length); //extracts message
+                byte[] bytestart = Arrays.copyOfRange(chunk, 0, 4); //extracts byte start position
+                byte[] payload = Arrays.copyOfRange(chunk, 4, chunk.length); //extracts message
                 int position = ByteBuffer.wrap(bytestart).getInt(); //convert byte to int
                 channel.position(position); //specify position to write to.
-                channel.write(ByteBuffer.wrap(payload,0,payload.length)); //write message to position
+                channel.write(ByteBuffer.wrap(payload, 0, payload.length)); //write message to position
                 count++;
             }
             file.close();
             channel.close();
-        }
-        catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
         try {
             byte[] filehash2 = util.getHashFile(this.filename);
             if (util.compareHash(this.filehash, filehash2)) {
-                System.out.println("hash match, download complete");
+//                System.out.println("hash match, download complete");
                 readyToSeed();
                 ArrayList<String> peerStringData = new ArrayList<>();
                 for (int i = 0; i < this.peerdata.size(); i++) {
@@ -124,8 +122,9 @@ public class Master extends Thread {
                 this.n.getFileManager().addFile(this.filename);
                 Tracker t = new Tracker(peerStringData, this.filename, InetAddress.getByAddress(this.leader).getHostAddress(), this.n);
                 n.addTracker(t);
-            } else
-                System.out.println("hash dont match");
+            } else {
+//                System.out.println("hash dont match");
+            }
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
@@ -139,7 +138,7 @@ public class Master extends Thread {
         byte[] out = handl.generatePacket(20, fname);
         DatagramPacket packet = new DatagramPacket(out, out.length, ip, NetworkStatics.SERVER_CONTROL_RECEIVE);
         udpSocket.send(packet);
-        NetworkStatics.printPacket(out, "TRACKER READY TO SEED REQ");
+//        NetworkStatics.printPacket(out, "TRACKER READY TO SEED REQ");
     }
 
 }

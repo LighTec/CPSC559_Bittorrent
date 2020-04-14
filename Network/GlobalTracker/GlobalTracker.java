@@ -16,6 +16,7 @@ public class GlobalTracker implements Pulsable {
         this.connectedNodes = new ArrayList<>();
         this.connect = new ConnectionThread(this);
         HeartbeatThread.init(1);
+        HeartbeatThread.debug = true;
         this.beat = new HeartbeatThread<>(this, "localhost");
         this.rand = new Random();
 
@@ -25,9 +26,9 @@ public class GlobalTracker implements Pulsable {
 
     synchronized void addNode(String address) throws UnknownHostException {
         if (!this.connectedNodes.contains(address)) {
-            if(InetAddress.getByName(address).isLoopbackAddress()){
-                System.out.println("Given address is loopback, skipping");
-            }else{
+            if (InetAddress.getByName(address).isLoopbackAddress()) {
+                if (HeartbeatThread.debug) System.out.println("Given address is loopback, skipping");
+            } else {
                 this.connectedNodes.add(address);
             }
 
