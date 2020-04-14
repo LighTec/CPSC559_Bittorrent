@@ -6,7 +6,6 @@ import Network.*;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -220,11 +219,7 @@ public class UDPServer extends Thread {
                             this.sendsocket.send(data);
                         }
                         break;
-                    case 22:
-                        //TODO new file command
-                        break;
                     case 23:
-                        /*CANNOT TEST THIS PART */
                         String fileNameIP = new String(parsed[1]).trim();
                         String[] d = fileNameIP.split(",");
                         node.updateLeader(d[0], d[1]); //d[0] should be the file name and d[1] should be the ip of the leader
@@ -273,11 +268,6 @@ public class UDPServer extends Thread {
 
                         node.deletePeerFromTracker(data1[0], data1[1]);
                         break;
-                    case 27:
-                    case 28:
-                    case 29:
-                        // invalid commands reserved for future functions
-                        break;
                     default:
                         throw new IllegalStateException("Unexpected value in " + getClass().getName() + " switch statement: " + cmd);
                 }
@@ -293,6 +283,16 @@ public class UDPServer extends Thread {
         }
     }
 
+    /**
+     * Generate the packet for command 12, which resends a file chunk.
+     * @param name byte array containing filename
+     * @param start original start index
+     * @param end original end index
+     * @param chunknum chunk # to resend
+     * @return byte array to send
+     * @throws IOException Failure reading file
+     * @throws NoSuchAlgorithmException Failure hashing data
+     */
     private byte[] generateFilePacket(byte[] name, int start, int end, int chunknum) throws IOException, NoSuchAlgorithmException {
         int chunkstartindex = start + (chunknum * (NetworkStatics.FILECHUNK_SIZE));
         int chunkendindex = chunkstartindex + NetworkStatics.FILECHUNK_SIZE;
@@ -306,13 +306,14 @@ public class UDPServer extends Thread {
         if (bytesread == 0) {
             throw new IOException("Failed to read any data during file packet generation...");
         }
-
+        // create output array
         byte[] output = new byte[bytesread + 20];
+        // copy over relevant data
         System.arraycopy(NetworkStatics.intToByteArray(chunknum), 0, output, 0, 4);
         byte[] datahash = this.hasher.hashBytes(filedata);
         System.arraycopy(datahash, 0, output, 4, 16);
         System.arraycopy(filedata, 0, output, 20, filedata.length);
-
+        // add length and command number with function
         byte[] tosend = this.handler.generatePacket(11, output);
         return tosend;
     }

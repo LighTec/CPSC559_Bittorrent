@@ -25,8 +25,6 @@ public class Node {
     private ArrayList<Tracker> trackers;
     private String ip;
 
-    public final static String TESTFILE = ".\\TestFiles\\413.pdf"; // DELETE ME
-
     Node() {
         // initialize filemanager, start UDP server, create empty arraylist of trackers
         this.fm = new FileManager();
@@ -36,8 +34,7 @@ public class Node {
 
         // if running in LAN only mode, get local address. Otherwise, get WAN address.
         if (LOCAL_ONLY) {
-            //this.ip = InetAddress.getLocalHost().getHostAddress();
-            this.ip = "192.168.62.2";       /// MANUALLY EDIT ME
+            this.ip = "192.168.62.2"; // MANUALLY EDIT ME FOR LAN FUNCTIONALITY
         } else {
             try {
                 URL myIP = new URL("http://checkip.amazonaws.com");
