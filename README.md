@@ -1,2 +1,2 @@
 # CPSC559_Bittorrent
-A bittorrent clone
+A bittorrent clone, built from scratch for a distributed systems class.
